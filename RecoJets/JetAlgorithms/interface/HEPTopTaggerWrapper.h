@@ -39,25 +39,35 @@ FASTJET_BEGIN_NAMESPACE
 ///
 /// The HEP top tagger produces information similar to the Johns Hopkins tagger.
 ///  Accordingly I simply reuse the JHTopTaggerStructure.
+
+// Removed legacy comments by CHRISTOPHER SILKWORTH
+
 class HEPTopTaggerStructure;
 
 
 class HEPTopTagger : public TopTaggerBase {
 public:
-  /// Sets two of the algorithm parameters
-  ///
-  /// \param mass_drop_threshold    A splitting is hard if 
-  ///                                max(subjet_m) < mass_drop_threshold * m_child
-  /// \param max_subjet_mass        The tagger attempts to split subjets until
-  ///                                remaining subjets have m_subjet < max_subjet_mass.
-  /// \param use_subjet_mass_cuts   Whether to impose the subjet mass cuts described
-  ///                                in arXiv:1006.2833 (default=false)
-  /// Default values are taken from the original HepTopTagger.hh code.
-  HEPTopTagger(double mass_drop_threshold=0.8, double max_subjet_mass=30.,
-               bool use_subjet_mass_cuts=false)
-    : _mass_drop_threshold(mass_drop_threshold),
-      _max_subjet_mass(max_subjet_mass),
-      _use_subjet_mass_cuts(use_subjet_mass_cuts)
+  HEPTopTagger(double minSubjetPt, 
+	       double minCandPt, 
+	       double subjetMass, 
+	       double muCut, 
+	       int mode, 
+	       double minCandMass, 
+	       double maxCandMass, 
+	       double massRatioWidth, 
+	       double minM23Cut, 
+	       double minM13Cut, 
+	       double maxM13Cut) : minSubjetPt_(minSubjetPt),
+    minCandPt_(minCandPt),
+    subjetMass_(subjetMass),
+    muCut_(muCut),
+    mode_(mode),
+    minCandMass_(minCandMass),
+    maxCandMass_(maxCandMass),
+    massRatioWidth_(massRatioWidth),
+    minM23Cut_(minM23Cut),
+    minM13Cut_(minM13Cut),
+    maxM13Cut_(maxM13Cut)   
   {}
 
   /// returns a textual description of the tagger
@@ -73,59 +83,64 @@ public:
   typedef HEPTopTaggerStructure StructureType;
 
 private:
-  double _mass_drop_threshold;
-  double _max_subjet_mass;
-  bool _use_subjet_mass_cuts; ///< whether to include the is_masscut_passed() test
+    double minSubjetPt_; // Minimal pT for subjets [GeV]
+    double minCandPt_;   // Minimal pT to return a candidate [GeV]
+ 
+    double subjetMass_; // Mass above which subjets are further unclustered
+    double muCut_; // Mass drop threshold
+    
+    // HEPTopTagger Mode
+    // 0: do 2d-plane, return candidate with delta m_top minimal
+    // 1: return candidate with delta m_top minimal IF passes 2d plane
+    // 2: do 2d-plane, return candidate with max dj_sum
+    // 3: return candidate with max dj_sum IF passes 2d plane
+    // 4: return candidate built from leading three subjets after unclustering IF passes 2d plane
+    // Note: Original HTT was mode==1    
+    int mode_; 
+
+    // Top Quark mass window in GeV
+    double minCandMass_;
+    double maxCandMass_;
+    
+    double massRatioWidth_; // One sided width of the A-shaped window around m_W/m_top in %
+    double minM23Cut_; // minimal value of m23/m123
+    double minM13Cut_; // minimal value of atan(m13/m12)
+    double maxM13Cut_; // maximal value of atan(m13/m12)
 };
-
-
-/// Basically just a copy of JHTopTaggerStructure, but this way HEPTopTagger can
-/// be a friend.
-
-//BEGIN COMMENTING OUT BY CHRISTOPHER SILKWORTH
-/*
-class HEPTopTaggerStructure : public JHTopTaggerStructure {
-public:
-  HEPTopTaggerStructure(std::vector<PseudoJet> pieces,
-      const JetDefinition::Recombiner *recombiner = 0)
-    : JHTopTaggerStructure(pieces, recombiner) {}
-
-protected:
-  friend class HEPTopTagger;
-};
-*/
-//END COMMENTING OUT
-
-//BEGIN ADDED BY CHRISTOPHER SILKWORTH
 
 
 class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBaseStructure {
  public:
    /// ctor with pieces initialisation
    HEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
-                  const JetDefinition::Recombiner *recombiner = 0) :
-      CompositeJetStructure(pieces_in, recombiner), _cos_theta_w(0.0),W_rec(recombiner), 
-      rW_()
-	{}
+                  const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
+    _cos_theta_w(0.0),
+    _top_mass(0.0),
+    _unfiltered_mass(0.0),
+    _pruned_mass(0.0),
+    _fW(-1.),
+    _mass_ratio_passed(-1),
+    W_rec(recombiner), 
+    rW_(){}
+  
+   // Return W subjet
+   inline PseudoJet const & W() const{ 
+     rW_ = join(_pieces[0], _pieces[1], *W_rec);
+     return rW_;
+   }
+     
+   // Return leading subjet in W
+   inline PseudoJet  W1() const{
+     assert(W().pieces().size()>0);
+     return W().pieces()[0];
+   }
+       
+   /// returns the second W subjet
+   inline PseudoJet W2() const{
+     assert(W().pieces().size()>1);
+     return W().pieces()[1];
+   }
  
-   /// returns the W subjet
-      inline PseudoJet const & W() const{ 
-         rW_ = join(_pieces[0], _pieces[1], *W_rec);
-         return rW_;
-      }
- 
-      
-      inline PseudoJet  W1() const{
-         assert(W().pieces().size()>0);
-         return W().pieces()[0];
-      }
-      
-      /// returns the second W subjet
-      inline PseudoJet W2() const{
-         assert(W().pieces().size()>1);
-         return W().pieces()[1];
-      }
-
 
    /// returns the non-W subjet
    /// It will have 1 or 2 pieces depending on whether the tagger has
@@ -134,20 +149,33 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
      return _pieces[2];
    }
  
-   /// returns the W helicity angle
+   /// returns the W helicity angl
    inline double cos_theta_W() const {return _cos_theta_w;}
- 
- //  /// returns the original jet (before tagging)
- //  const PseudoJet & original() const {return _original_jet;}
 
- 
- 
+   /// returns the candidate mass
+   inline double top_mass() const {return _top_mass;}
+
+   /// returns the unfiltered mass
+   inline double unfiltered_mass() const {return _unfiltered_mass;}
+
+   /// returns the pruned mass
+   inline double pruned_mass() const {return _pruned_mass;}
+
+   /// returns fW
+   inline double fW() const {return _fW;}
+
+   /// returns if 2d-mass plane cuts were passed
+   inline double mass_ratio_passed() const {return _mass_ratio_passed;}
+    
  protected:
       double _cos_theta_w; ///< the W helicity angle
+      double _top_mass;
+      double _unfiltered_mass;
+      double _pruned_mass;
+      double _fW;
+      int _mass_ratio_passed;
+
       const JetDefinition::Recombiner  * W_rec;
-   //PseudoJet _W;             ///< the tagged W
-   //PseudoJet _non_W;         ///< the remaining pieces
- //  PseudoJet _original_jet;  ///< the original jet (before tagging)
  
       mutable PseudoJet rW_;
 
@@ -156,17 +184,24 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
  };
 
 
-//END ADDED BY CHRISTOPHER SILKWORTH
-
-
 //------------------------------------------------------------------------
 // description of the tagger
 inline std::string HEPTopTagger::description() const{ 
+
+  // TODO: FIXME!!!
   std::ostringstream oss;
-  oss << "HEPTopTagger with {max. subjet mass = " << _max_subjet_mass
-      << ", mass-drop threshold = " << _mass_drop_threshold
-      << ", and " << (_use_subjet_mass_cuts ? "using" : "not using") << " subjet mass cuts" << std::endl;
-  oss << description_of_selectors();
+  oss << "HEPTopTagger with: "
+      << "minSubjetPt = " << minSubjetPt_ 
+      << "minCandPt = " << minCandPt_ 
+      << "subjetMass = " << subjetMass_ 
+      << "muCut = " << muCut_ 
+      << "mode = " << mode_ 
+      << "minCandMass = " << minCandMass_ 
+      << "maxCandMass = " << maxCandMass_ 
+      << "massRatioWidth = " << massRatioWidth_ 
+      << "minM23Cut = " << minM23Cut_ 
+      << "minM13Cut = " << minM13Cut_ 
+      << "maxM13Cut = " << maxM13Cut_ << std::endl;
   return oss.str();
 }
 
