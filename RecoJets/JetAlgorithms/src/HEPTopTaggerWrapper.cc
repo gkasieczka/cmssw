@@ -22,15 +22,17 @@
 #include <fastjet/Error.hh>
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/ClusterSequence.hh>
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/tools/Pruner.hh"
+#include "fastjet/tools/Filter.hh"
 
+#include <math.h>
 #include <limits>
 #include <cassert>
 using namespace std;
 
-// namespace hack so that this tagger can have the same name as the core code
-namespace external {
 #include "RecoJets/JetAlgorithms/interface/HEPTopTagger.h"
-}
+
 
 FASTJET_BEGIN_NAMESPACE
 
@@ -45,7 +47,7 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
     throw Error("HEPTopTagger can only be applied on jets having an associated (and valid) ClusterSequence");
   }
 
-  external::HEPTopTagger tagger(*jet.associated_cluster_sequence(), jet);
+  external::HEPTopTagger tagger(jet);
   tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
   tagger.set_mass_drop_threshold(_mass_drop_threshold);
   tagger.set_max_subjet_mass(_max_subjet_mass);
