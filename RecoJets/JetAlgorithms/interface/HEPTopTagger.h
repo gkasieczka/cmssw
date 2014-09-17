@@ -36,6 +36,7 @@ public:
   void set_mass_ratio_range(double rmin, double rmax) {_rmin=rmin; _rmax=rmax;}
   void set_mass_ratio_cut(double m23cut, double m13cutmin,double m13cutmax){_m23cut=m23cut; _m13cutmin=m13cutmin; _m13cutmax=m13cutmax;}
   void set_nfilt(unsigned nfilt) {_nfilt=nfilt;}
+  void set_two_step_filt(bool two_step_filt) {_two_step_filt=two_step_filt;}
   void set_filtering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm=jet_algorithm;}
   void set_reclustering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm_recluster=jet_algorithm;}
   // 
@@ -53,6 +54,7 @@ private:
   double _rmin, _rmax;
   double _m23cut, _m13cutmin, _m13cutmax;
   size_t _nfilt;
+  bool _two_step_filt;
   // filtering algorithm
   JetAlgorithm _jet_algorithm;
   JetAlgorithm _jet_algorithm_recluster;
@@ -226,7 +228,7 @@ HEPTopTagger::HEPTopTagger(const fastjet::ClusterSequence & cs,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
   _mtmin(172.3 - 25.),_mtmax(172.3 + 25.), _rmin(0.85*80.4/172.3),_rmax(1.15*80.4/172.3),
   _m23cut(0.35),_m13cutmin(0.2),_m13cutmax(1.3),
-  _nfilt(5),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
+  _nfilt(5),_two_step_filt(false),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
   debugg(false)
 {}
 
@@ -238,7 +240,7 @@ HEPTopTagger::HEPTopTagger(const fastjet::ClusterSequence & cs,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
   _mtmin(mtmass - 25.),_mtmax(mtmass + 25.), _rmin(0.85*mwmass/mtmass),_rmax(1.15*mwmass/mtmass),
   _m23cut(0.35),_m13cutmin(0.2),_m13cutmax(1.3),
-  _nfilt(5),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
+  _nfilt(5),_two_step_filt(false),_jet_algorithm(fastjet::cambridge_algorithm),_jet_algorithm_recluster(fastjet::cambridge_algorithm),
   debugg(false)
 {}
 
@@ -262,9 +264,14 @@ void HEPTopTagger::run_tagger()
       //printjet(_jet);
     }
   
+  cout << "Tagger is running!" << endl;
   
   // input this_jet, output _top_parts
   FindHardSubst(_jet, _top_parts);
+  
+  // Sort subjets-after-unclustering by pT. 
+  // Necessary so that two-step-filtering can use the leading-three.
+  _top_parts=sorted_by_pt(_top_parts);
   
   // store hard substructure of the top candidate
   _parts_size=_top_parts.size();
@@ -275,6 +282,16 @@ void HEPTopTagger::run_tagger()
   for(unsigned rr=0; rr<_top_parts.size(); rr++){
     for(unsigned ll=rr+1; ll<_top_parts.size(); ll++){
       for(unsigned kk=ll+1; kk<_top_parts.size(); kk++){
+
+	// Two-step filtering means that we only look at the triplet formed by the
+	// three leading-in-pT subjets-after-unclustering.
+	if(_two_step_filt && rr>0)
+	  continue;
+	if(_two_step_filt && ll>1)
+	  continue;
+	if(_two_step_filt && kk>2)
+	  continue;
+
 	// define top_constituents candidate before filtering 	      
 	std::vector <PseudoJet> top_constits = _cs->constituents(_top_parts[rr]);
 	_cs->add_constituents(_top_parts[ll],top_constits);
