@@ -37,7 +37,6 @@ void HTTTopJetProducer::produce(  edm::Event & e, const edm::EventSetup & c )
 
 void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    std::cout << "Entering runAlgorithm" << std::endl;
 
   if ( !doAreaFastjet_ && !doRhoFastjet_) {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
@@ -76,60 +75,37 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
     }
   }
   
-
-  std::cout << "Leaving runAlgorithm with " << fjJets_.size() << "fjJets" << std::endl;
 }
 
 void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
 						       const edm::EventSetup& iSetup,
-						         edm::OrphanHandle<reco::BasicJetCollection> & oh){
-  std::cout << "Made it to addHTTTopJetTagInfoCollection" << std::endl;
+						       edm::OrphanHandle<reco::BasicJetCollection> & oh){
 
 
   // Set up output list
   auto_ptr<HTTTopJetTagInfoCollection> tagInfos(new HTTTopJetTagInfoCollection() );
 
+  // Loop over jets
   for (size_t ij=0; ij != fjJets_.size(); ij++){
 
+    HTTTopJetProperties properties;
+    HTTTopJetTagInfo tagInfo;
+
+    // Black magic:
+    // In the standard CA treatment the RefToBase is made from the handle directly
+    // Since we only have a OrphanHandle (the JetCollection is created by this process) 
+    // we have to take the detour via the Ref
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
     edm::RefToBase<reco::Jet> rtb(ref);  
-
-    reco::HTTTopJetProperties properties;
-
+    
     properties.topMass = 40;
     properties.fW = 60;
-
-    HTTTopJetTagInfo tagInfo;
+    
     tagInfo.insert(rtb, properties );
     tagInfos->push_back( tagInfo );
   }  
 
-
-
-
-//
-//
-//
-//  std::cout << "in JetCollection: " << jetCollection->size() << "  in fjJets_: " << fjJets_.size() << std::endl;
-//
-////  for (int ijet = 0; ijet != jetCollection->size(); ijet++){
-////
-////    reco::BasicJet basic_jet = jetCollection[ijet];
-////    fastjet::PseudoJet fj_jet = fjJets_[ijet];
-////    
-////    RefToBase<Jet> ref( jetCollection, ijet );    
-////
-////
-////
-////  }
-////
-
-//
-
-//  
-//
   iEvent.put( tagInfos );
-//
   
 };
 
