@@ -10,6 +10,10 @@
 #include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 #include "RecoJets/JetProducers/interface/VirtualJetProducerHelper.h"
 
+#include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefVector.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -135,6 +139,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , jetCollInstanceName_ ("")
   , writeCompound_ ( false )
   , verbosity_(0)
+  , fromHTTTopJetProducer_(0)
 {
   anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
@@ -835,6 +840,22 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     jetCollection->push_back( toput );
   }
 
+
+  
   // put hard jets into event record
   iEvent.put( jetCollection);
+
+  if (jetCollection->size()>0){
+    edm::RefProd<reco::BasicJetCollection> foo = iEvent.getRefBeforePut<reco::BasicJetCollection>();
+    edm::RefToBase<reco::BasicJet> ref( foo, 0 );  
+  }  
+
+
+  // This is needed so we can have access to the jetCollection object in the HTTTopJetProducer  
+  std::cout << fromHTTTopJetProducer_ << std::endl;
+  if (fromHTTTopJetProducer_){
+    addHTTTopJetTagInfoCollection( iEvent, iSetup, jetCollection);
+  }
+
+
 }
