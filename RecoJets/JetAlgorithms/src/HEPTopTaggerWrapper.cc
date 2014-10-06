@@ -76,8 +76,10 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
 
   PseudoJet result = join<HEPTopTaggerStructure>( W1, W2, non_W, *rec);
   HEPTopTaggerStructure *s = (HEPTopTaggerStructure*) result.structure_non_const_ptr();
-  
+
+  s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
+
 
   // Check selectors to see if identified top, W pass and cuts
   //

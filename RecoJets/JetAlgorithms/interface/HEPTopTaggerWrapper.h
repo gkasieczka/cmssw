@@ -105,7 +105,11 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    HEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
     _cos_theta_w(0.0),
+    _top_mass(0.0),
+    _raw_mass(0.0),
     _pruned_mass(0.0),
+    _fW(-1.),
+    _mass_ratio_passed(-1),
     W_rec(recombiner), 
     rW_(){}
  
@@ -138,6 +142,10 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    /// returns the W helicity angl
    inline double cos_theta_W() const {return _cos_theta_w;}
 
+   /// returns the candidate mass
+   inline double top_mass() const {return _top_mass;}
+
+
    /// returns the pruned mass
    inline double pruned_mass() const {return _pruned_mass;}
  
@@ -150,7 +158,11 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
  
  protected:
       double _cos_theta_w; ///< the W helicity angle
+      double _top_mass;
+      double _raw_mass;
       double _pruned_mass;
+      double _fW;
+      int _mass_ratio_passed;
 
       const JetDefinition::Recombiner  * W_rec;
    //PseudoJet _W;             ///< the tagged W
