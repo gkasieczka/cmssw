@@ -98,11 +98,13 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
     edm::RefToBase<reco::Jet> rtb(ref);  
     
-    properties.topMass          = 0.;
-    properties.rawMass	        = 0.;
-    properties.prunedMass	= 0.;
-    properties.fW		= 0.;
-    properties.massRatioPassed  = 0.;
+    fastjet::HEPTopTaggerStructure *s = (fastjet::HEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
+
+    properties.topMass          = 0;
+    properties.rawMass	        = 0;
+    properties.prunedMass	= s->pruned_mass();
+    properties.fW		= 0;
+    properties.massRatioPassed  = 0;
 
     // Only needed for MultiR tagger
     properties.isMultiR	        = 0;

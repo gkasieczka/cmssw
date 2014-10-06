@@ -94,6 +94,7 @@ namespace cms
     double ptMin_;
     double centralEtaCut_;
     bool verbose_;
+
     enum tagalgos {
 	CA_TOPTAGGER,
 	FJ_CMS_TOPTAG,
