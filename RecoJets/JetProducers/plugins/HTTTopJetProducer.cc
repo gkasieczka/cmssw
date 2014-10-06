@@ -98,8 +98,16 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
     edm::RefToBase<reco::Jet> rtb(ref);  
     
-    properties.topMass = 40;
-    properties.fW = 60;
+    properties.topMass          = 0.;
+    properties.rawMass	        = 0.;
+    properties.prunedMass	= 0.;
+    properties.fW		= 0.;
+    properties.massRatioPassed  = 0.;
+
+    // Only needed for MultiR tagger
+    properties.isMultiR	        = 0;
+    properties.Rmin	        = -1.;
+    properties.RminExpected     = -1.;
     
     tagInfo.insert(rtb, properties );
     tagInfos->push_back( tagInfo );
