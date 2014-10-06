@@ -123,9 +123,7 @@ protected:
   virtual void addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
 					      const edm::EventSetup& iSetup,
 					      edm::OrphanHandle<reco::BasicJetCollection> & oh){};
-  //const std::auto_ptr<reco::BasicJetCollection> & jetCollection){};
-  
-
+ 
   // Do the offset correction. 
   // Only runs if "doPUOffsetCorrection_" is true.  
   void offsetCorrectJets(std::vector<fastjet::PseudoJet> & orphanInput);
