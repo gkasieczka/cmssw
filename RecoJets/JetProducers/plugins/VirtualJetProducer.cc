@@ -840,21 +840,44 @@ void VirtualJetProducer::writeCompoundJets(  edm::Event & iEvent, edm::EventSetu
     jetCollection->push_back( toput );
   }
 
-
+  std::cout << "Blub" << std::endl;
   
-  // put hard jets into event record
-  iEvent.put( jetCollection);
+  std::cout << jetCollection->size() << std::endl;
 
-  if (jetCollection->size()>0){
-    edm::RefProd<reco::BasicJetCollection> foo = iEvent.getRefBeforePut<reco::BasicJetCollection>();
-    edm::RefToBase<reco::BasicJet> ref( foo, 0 );  
+  // put hard jets into event record
+  edm::OrphanHandle<reco::BasicJetCollection>  oh = iEvent.put( jetCollection);
+
+  if (fjJets_.size()>0){
+
+    std::cout << "VJJ size>0" << std::endl;
+    //edm::Handle<reco::BasicJetCollection>  hh;
+    //iEvent.get(oh.id(), hh);
+
+
+    edm::Ref<reco::BasicJetCollection> ref(oh, 0 );  
+    edm::RefToBase<reco::Jet> rtb(ref);  
+
+    //
+    //reco::HTTTopJetProperties properties;
+    //
+    //properties.topMass = 40;
+    //properties.fW = 60;
+    //
+    //HTTTopJetTagInfo tagInfo;
+    //tagInfo.insert(ref, properties );
   }  
 
 
+  std::cout << "put JC" << std::endl;
+
+  //edm::RefProd<reco::BasicJetCollection> jetColl_ref = iEvent.getRefBeforePut<reco::BasicJetCollection>();
+
   // This is needed so we can have access to the jetCollection object in the HTTTopJetProducer  
   std::cout << fromHTTTopJetProducer_ << std::endl;
+  std::cout << "X" << std::endl;
+
   if (fromHTTTopJetProducer_){
-    addHTTTopJetTagInfoCollection( iEvent, iSetup, jetCollection);
+    addHTTTopJetTagInfoCollection( iEvent, iSetup, oh);
   }
 
 

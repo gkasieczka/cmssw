@@ -81,12 +81,32 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
 }
 
 void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent, 
-				    const edm::EventSetup& iSetup,
-				    const std::auto_ptr<reco::BasicJetCollection> & jetCollection){
+						       const edm::EventSetup& iSetup,
+						         edm::OrphanHandle<reco::BasicJetCollection> & oh){
   std::cout << "Made it to addHTTTopJetTagInfoCollection" << std::endl;
 
-//  // Set up output list
-//  auto_ptr<HTTTopJetTagInfoCollection> tagInfos(new HTTTopJetTagInfoCollection() );
+
+  // Set up output list
+  auto_ptr<HTTTopJetTagInfoCollection> tagInfos(new HTTTopJetTagInfoCollection() );
+
+  for (size_t ij=0; ij != fjJets_.size(); ij++){
+
+    edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
+    edm::RefToBase<reco::Jet> rtb(ref);  
+
+    reco::HTTTopJetProperties properties;
+
+    properties.topMass = 40;
+    properties.fW = 60;
+
+    HTTTopJetTagInfo tagInfo;
+    tagInfo.insert(rtb, properties );
+    tagInfos->push_back( tagInfo );
+  }  
+
+
+
+
 //
 //
 //
@@ -103,13 +123,12 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
 ////
 ////  }
 ////
-//  reco::HTTTopJetProperties properties;
+
 //
-//  properties.topMass = 40;
-//  properties.fW = 60;
+
 //  
 //
-//  iEvent.put( tagInfos );
+  iEvent.put( tagInfos );
 //
   
 };
