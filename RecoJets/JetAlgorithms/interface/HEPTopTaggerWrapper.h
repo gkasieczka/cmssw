@@ -145,11 +145,14 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    /// returns the candidate mass
    inline double top_mass() const {return _top_mass;}
 
-  /// returns the unfiltered mass
+   /// returns the unfiltered mass
    inline double unfiltered_mass() const {return _unfiltered_mass;}
 
    /// returns the pruned mass
    inline double pruned_mass() const {return _pruned_mass;}
+
+   /// returns fW
+   inline double fW() const {return _fW;}
  
    
  //  /// returns the original jet (before tagging)
