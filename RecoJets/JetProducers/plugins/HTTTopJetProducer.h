@@ -91,18 +91,37 @@ namespace cms
   private:
     std::auto_ptr<fastjet::HEPTopTagger>     fjHEPTopTagger_;
 
-    double ptMin_;
-    double centralEtaCut_;
+    // Below are all configurable options. 
+    // Parenthesis indicates if this is enforced by the tagger itself or by the producer
+
+    double minFatjetPt_; // Only process fatjets larger pT with the tagger [GeV] (producer)
+    double minSubjetPt_; // Minimal pT for subjets [GeV] (tagger)
+    double minCandPt_;   // Minimal pT to return a candidate [GeV] (tagger)
+ 
+    double maxFatjetAbsEta_; // Only process fatjets with smaller |eta| with the tagger. (producer)
+
+    double subjetMass_; // Mass above which subjets are further unclustered (tagger)
+    double muCut_; // Mass drop threshold (tagger)
+    
+    // HEPTopTagger Mode (tagger):
+    // 0: do 2d-plane, return candidate with delta m_top minimal
+    // 1: return candidate with delta m_top minimal IF passes 2d plane
+    // 2: do 2d-plane, return candidate with max dj_sum
+    // 3: return candidate with max dj_sum IF passes 2d plane
+    // 4: return candidate built from leading three subjets after unclustering IF passes 2d plane
+    // Note: Original HTT was mode==1    
+    int mode_; 
+
+    // Top Quark mass window in GeV (tagger)
+    double minCandMass_;
+    double maxCandMass_;
+    
+    double massRatioWidth_; // One sided width of the A-shaped window around m_W/m_top in % (tagger)
+    double minM23Cut_; // minimal value of m23/m123 (tagger)
+    double minM13Cut_; // minimal value of atan(m13/m12) (tagger)
+    double maxM13Cut_; // maximal value of atan(m13/m12) (tagger)
+        
     bool verbose_;
-
-    enum tagalgos {
-	CA_TOPTAGGER,
-	FJ_CMS_TOPTAG,
-	FJ_HEP_TOPTAG,
-	FJ_JHU_TOPTAG,
-	FJ_NSUB_TAG
-    };
-
 
   };
 

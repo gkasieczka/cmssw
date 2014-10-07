@@ -44,20 +44,27 @@ class HEPTopTaggerStructure;
 
 class HEPTopTagger : public TopTaggerBase {
 public:
-  /// Sets two of the algorithm parameters
-  ///
-  /// \param mass_drop_threshold    A splitting is hard if 
-  ///                                max(subjet_m) < mass_drop_threshold * m_child
-  /// \param max_subjet_mass        The tagger attempts to split subjets until
-  ///                                remaining subjets have m_subjet < max_subjet_mass.
-  /// \param use_subjet_mass_cuts   Whether to impose the subjet mass cuts described
-  ///                                in arXiv:1006.2833 (default=false)
-  /// Default values are taken from the original HepTopTagger.hh code.
-  HEPTopTagger(double mass_drop_threshold=0.8, double max_subjet_mass=30.,
-               bool use_subjet_mass_cuts=false)
-    : _mass_drop_threshold(mass_drop_threshold),
-      _max_subjet_mass(max_subjet_mass),
-      _use_subjet_mass_cuts(use_subjet_mass_cuts)
+  HEPTopTagger(double minSubjetPt, 
+	       double minCandPt, 
+	       double subjetMass, 
+	       double muCut, 
+	       int mode, 
+	       double minCandMass, 
+	       double maxCandMass, 
+	       double massRatioWidth, 
+	       double minM23Cut, 
+	       double minM13Cut, 
+	       double maxM13Cut) : minSubjetPt_(minSubjetPt),
+    minCandPt_(minCandPt),
+    subjetMass_(subjetMass),
+    muCut_(muCut),
+    mode_(mode),
+    minCandMass_(minCandMass),
+    maxCandMass_(maxCandMass),
+    massRatioWidth_(massRatioWidth),
+    minM23Cut_(minM23Cut),
+    minM13Cut_(minM13Cut),
+    maxM13Cut_(maxM13Cut)   
   {}
 
   /// returns a textual description of the tagger
@@ -73,9 +80,29 @@ public:
   typedef HEPTopTaggerStructure StructureType;
 
 private:
-  double _mass_drop_threshold;
-  double _max_subjet_mass;
-  bool _use_subjet_mass_cuts; ///< whether to include the is_masscut_passed() test
+    double minSubjetPt_; // Minimal pT for subjets [GeV]
+    double minCandPt_;   // Minimal pT to return a candidate [GeV]
+ 
+    double subjetMass_; // Mass above which subjets are further unclustered
+    double muCut_; // Mass drop threshold
+    
+    // HEPTopTagger Mode
+    // 0: do 2d-plane, return candidate with delta m_top minimal
+    // 1: return candidate with delta m_top minimal IF passes 2d plane
+    // 2: do 2d-plane, return candidate with max dj_sum
+    // 3: return candidate with max dj_sum IF passes 2d plane
+    // 4: return candidate built from leading three subjets after unclustering IF passes 2d plane
+    // Note: Original HTT was mode==1    
+    int mode_; 
+
+    // Top Quark mass window in GeV
+    double minCandMass_;
+    double maxCandMass_;
+    
+    double massRatioWidth_; // One sided width of the A-shaped window around m_W/m_top in %
+    double minM23Cut_; // minimal value of m23/m123
+    double minM13Cut_; // minimal value of atan(m13/m12)
+    double maxM13Cut_; // maximal value of atan(m13/m12)
 };
 
 
@@ -189,11 +216,13 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
 //------------------------------------------------------------------------
 // description of the tagger
 inline std::string HEPTopTagger::description() const{ 
+
+  // TODO: FIXME!!!
   std::ostringstream oss;
-  oss << "HEPTopTagger with {max. subjet mass = " << _max_subjet_mass
-      << ", mass-drop threshold = " << _mass_drop_threshold
-      << ", and " << (_use_subjet_mass_cuts ? "using" : "not using") << " subjet mass cuts" << std::endl;
-  oss << description_of_selectors();
+  //oss << "HEPTopTagger with {max. subjet mass = " << _max_subjet_mass
+  //    << ", mass-drop threshold = " << _mass_drop_threshold
+  //    << ", and " << (_use_subjet_mass_cuts ? "using" : "not using") << " subjet mass cuts" << std::endl;
+  //oss << description_of_selectors();
   return oss.str();
 }
 

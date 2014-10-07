@@ -48,18 +48,20 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   }
 
   external::HEPTopTagger tagger(jet);
-  tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
-  tagger.set_mass_drop_threshold(_mass_drop_threshold);
-  tagger.set_max_subjet_mass(_max_subjet_mass);
+
+  //tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
+  //tagger.set_mass_drop_threshold(_mass_drop_threshold);
+  //tagger.set_max_subjet_mass(_max_subjet_mass);
 
   tagger.run_tagger();
-  
+
+  // TODO: fixme 
   // check that we passed the tagger; if not return a blank PseudoJet
-  if (_use_subjet_mass_cuts) {
-    if (!tagger.is_masscut_passed()) // encompasses is_maybe_top() plus subjet mass cuts
-      return PseudoJet();
-  } else if (!tagger.is_maybe_top())
-    return PseudoJet();
+  //if (_use_subjet_mass_cuts) {
+  //  if (!tagger.is_masscut_passed()) // encompasses is_maybe_top() plus subjet mass cuts
+  //    return PseudoJet();
+  //} else if (!tagger.is_maybe_top())
+  //  return PseudoJet();
   
   // create the result and its structure
   const JetDefinition::Recombiner *rec
