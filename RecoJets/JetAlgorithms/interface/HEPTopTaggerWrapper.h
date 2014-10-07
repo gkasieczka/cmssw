@@ -153,6 +153,9 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
 
    /// returns fW
    inline double fW() const {return _fW;}
+
+   /// returns if 2d-mass plane cuts were passed
+   inline double mass_ratio_passed() const {return _mass_ratio_passed;}
  
    
  //  /// returns the original jet (before tagging)

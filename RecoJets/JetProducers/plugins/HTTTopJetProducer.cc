@@ -104,7 +104,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     properties.unfilteredMass	= s->unfiltered_mass();
     properties.prunedMass	= s->pruned_mass();
     properties.fW		= s->fW();
-    properties.massRatioPassed  = 0;
+    properties.massRatioPassed  = s->mass_ratio_passed();
 
     // Only needed for MultiR tagger
     properties.isMultiR	        = 0;
