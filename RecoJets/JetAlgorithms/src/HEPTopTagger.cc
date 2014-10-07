@@ -231,8 +231,8 @@ void HEPTopTagger::run_tagger() {
 	  fastjet::Pruner pruner(jet_def_prune, _zcut, _rcut_factor);
 	  PseudoJet prunedjet = pruner(triple);
 	  _pruned_mass = prunedjet.m();
-	  _unfiltered_mass = triple.m();
-	  
+	  _unfiltered_mass = triple.m();	 
+
 	  //are all criteria fulfilled?
 	  _is_masscut_passed = false;
 	  if (check_mass_criteria(top_subs)) {

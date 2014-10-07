@@ -79,7 +79,7 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
 
   s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
-
+  s->_unfiltered_mass = tagger.unfiltered_mass();
 
   // Check selectors to see if identified top, W pass and cuts
   //

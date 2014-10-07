@@ -23,7 +23,7 @@ class HTTTopJetProperties {
 public:
   HTTTopJetProperties() {
     topMass          = 0.;
-    rawMass	     = 0.;
+    unfilteredMass   = 0.;
     prunedMass	     = 0.;
     fW		     = 0.;
     massRatioPassed  = 0.;
@@ -32,7 +32,7 @@ public:
     RminExpected     = 0.;
   }
   double              topMass;         //<! Mass of the HTT top quark candidate [GeV] (at R=Rmin for MultiR)
-  double              rawMass;         //<! Mass of the initial CA fat jet [GeV] (at R=Rmin for MultiR)
+  double              unfilteredMass;  //<! Unfiltered mass of the triplet [GeV] (at R=Rmin for MultiR)
   double              prunedMass;      //<! Mass of the pruned fat jet [GeV] (at R=Rmin for MultiR)
   double              fW;              //<! Minimum distance of m_ij/m_123 from m_W/m_top (at R=Rmin for MultiR)
   double              massRatioPassed; //<! Did the candidate pass the default mass ratio? Can be used instead of fW (at R=Rmin for MultiR)

@@ -101,7 +101,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     fastjet::HEPTopTaggerStructure *s = (fastjet::HEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
 
     properties.topMass          = s->top_mass();
-    properties.rawMass	        = 0;
+    properties.unfilteredMass	= s->unfiltered_mass();
     properties.prunedMass	= s->pruned_mass();
     properties.fW		= 0;
     properties.massRatioPassed  = 0;
