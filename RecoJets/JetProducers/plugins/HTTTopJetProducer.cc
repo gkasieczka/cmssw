@@ -10,22 +10,66 @@ using namespace std;
 
 HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        FastjetJetProducer( conf ),
-       minFatjetPt_(      conf.getUntrackedParameter<double>("minFatjetPt",     200.    )),
-       minSubjetPt_(      conf.getUntrackedParameter<double>("minSubjetPt",      20.    )),
-       minCandPt_(        conf.getUntrackedParameter<double>("minCandPt",       200.    )),
-       maxFatjetAbsEta_(  conf.getUntrackedParameter<double>("maxFatjetAbsEta",   2.5   )),
-       subjetMass_(       conf.getUntrackedParameter<double>("subjetMass",       30.    )),
-       muCut_(            conf.getUntrackedParameter<double>("muCut",             0.8   )),
-       mode_(             conf.getUntrackedParameter<int>(   "mode",              0     )),
-       minCandMass_(      conf.getUntrackedParameter<double>("minCandMass",     150.    )),
-       maxCandMass_(      conf.getUntrackedParameter<double>("maxCandMass",     200.    )),
-       massRatioWidth_(   conf.getUntrackedParameter<double>("massRatioWidth",    0.15  )),
-       minM23Cut_(        conf.getUntrackedParameter<double>("minM23Cut",         0.35  )),
-       minM13Cut_(        conf.getUntrackedParameter<double>("minM13Cut",         0.2   )),
-       maxM13Cut_(        conf.getUntrackedParameter<double>("maxM13Cut",         1.3   )),
-       verbose_(          conf.getUntrackedParameter<bool>(  "verbose",           false ))
+       minFatjetPt_(200.),
+       minSubjetPt_(20.),
+       minCandPt_(200.),
+       maxFatjetAbsEta_(2.5),
+       subjetMass_(30.),
+       muCut_(0.8),
+       mode_(0),
+       minCandMass_(150.),
+       maxCandMass_(200.),
+       massRatioWidth_(0.15),
+       minM23Cut_(0.35),
+       minM13Cut_(0.2),
+       maxM13Cut_(1.3),
+       verbose_(false )
 {
+  
+  // Read in all the options from the configuration
+  if ( conf.exists("minFatjetPt") ) 
+    minFatjetPt_ = conf.getParameter<double>("minFatjetPt");
+  
+  if ( conf.exists("minSubjetPt") ) 
+    minSubjetPt_ = conf.getParameter<double>("minSubjetPt");
+  
+  if ( conf.exists("minCandPt") ) 
+    minCandPt_ = conf.getParameter<double>("minCandPt");
+  
+  if ( conf.exists("maxFatjetAbsEta") )
+    maxFatjetAbsEta_ = conf.getParameter<double>("maxFatjetAbsEta");
+  
+  if ( conf.exists("subjetMass") )
+    subjetMass_ = conf.getParameter<double>("subjetMass");
+  
+  if ( conf.exists("muCut") )
+    muCut_ = conf.getParameter<double>("muCut");
+  
+  if ( conf.exists("mode") )
+    mode_ = conf.getParameter<int>("mode");
+  
+  if ( conf.exists("minCandMass") )
+    minCandMass_ = conf.getParameter<double>("minCandMass");
+  
+  if ( conf.exists("maxCandMass") )
+    maxCandMass_ = conf.getParameter<double>("maxCandMass");
+  
+  if ( conf.exists("massRatioWidth") )
+    massRatioWidth_ = conf.getParameter<double>("massRatioWidth");
+  
+  if ( conf.exists("minM23Cut") )
+    minM23Cut_ = conf.getParameter<double>("minM23Cut");
 
+  if ( conf.exists("minM13Cut") )
+    minM13Cut_ = conf.getParameter<double>("minM13Cut");
+  
+  if ( conf.exists("maxM13Cut") )
+    maxM13Cut_ = conf.getParameter<double>("maxM13Cut");
+  
+  if ( conf.exists("verbose") )
+    verbose_ = conf.getParameter<bool>("verbose");
+  
+  // Create the tagger-wrapper
   produces<HTTTopJetTagInfoCollection>();
   fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
 										   minCandPt_,
