@@ -40,6 +40,7 @@ FASTJET_BEGIN_NAMESPACE
 // returns the tagged PseudoJet if successful, 0 otherwise
 //  - jet   the PseudoJet to tag
 PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
+
   // make sure that there is a "regular" cluster sequence associated
   // with the jet. Note that we also check it is valid (to avoid a
   // more criptic error later on)
@@ -48,6 +49,8 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   }
 
   external::HEPTopTagger tagger(jet);
+  
+  
 
   //tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
   //tagger.set_mass_drop_threshold(_mass_drop_threshold);
@@ -75,7 +78,6 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   PseudoJet W2 = subjets[2];
   PseudoJet W = join(subjets[1], subjets[2], *rec);
 
-
   PseudoJet result = join<HEPTopTaggerStructure>( W1, W2, non_W, *rec);
   HEPTopTaggerStructure *s = (HEPTopTaggerStructure*) result.structure_non_const_ptr();
 
@@ -96,8 +98,5 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
 
   return result;
 }
-
-
-
 
 FASTJET_END_NAMESPACE

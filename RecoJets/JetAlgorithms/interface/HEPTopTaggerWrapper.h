@@ -39,6 +39,9 @@ FASTJET_BEGIN_NAMESPACE
 ///
 /// The HEP top tagger produces information similar to the Johns Hopkins tagger.
 ///  Accordingly I simply reuse the JHTopTaggerStructure.
+
+// Removed legacy comments by CHRISTOPHER SILKWORTH
+
 class HEPTopTaggerStructure;
 
 
@@ -106,26 +109,6 @@ private:
 };
 
 
-/// Basically just a copy of JHTopTaggerStructure, but this way HEPTopTagger can
-/// be a friend.
-
-//BEGIN COMMENTING OUT BY CHRISTOPHER SILKWORTH
-/*
-class HEPTopTaggerStructure : public JHTopTaggerStructure {
-public:
-  HEPTopTaggerStructure(std::vector<PseudoJet> pieces,
-      const JetDefinition::Recombiner *recombiner = 0)
-    : JHTopTaggerStructure(pieces, recombiner) {}
-
-protected:
-  friend class HEPTopTagger;
-};
-*/
-//END COMMENTING OUT
-
-//BEGIN ADDED BY CHRISTOPHER SILKWORTH
-
-
 class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBaseStructure {
  public:
    /// ctor with pieces initialisation
@@ -139,25 +122,25 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
     _mass_ratio_passed(-1),
     W_rec(recombiner), 
     rW_(){}
+  
+   // Return W subjet
+   inline PseudoJet const & W() const{ 
+     rW_ = join(_pieces[0], _pieces[1], *W_rec);
+     return rW_;
+   }
+     
+   // Return leading subjet in W
+   inline PseudoJet  W1() const{
+     assert(W().pieces().size()>0);
+     return W().pieces()[0];
+   }
+       
+   /// returns the second W subjet
+   inline PseudoJet W2() const{
+     assert(W().pieces().size()>1);
+     return W().pieces()[1];
+   }
  
-   /// returns the W subjet
-      inline PseudoJet const & W() const{ 
-         rW_ = join(_pieces[0], _pieces[1], *W_rec);
-         return rW_;
-      }
- 
-      
-      inline PseudoJet  W1() const{
-         assert(W().pieces().size()>0);
-         return W().pieces()[0];
-      }
-      
-      /// returns the second W subjet
-      inline PseudoJet W2() const{
-         assert(W().pieces().size()>1);
-         return W().pieces()[1];
-      }
-
 
    /// returns the non-W subjet
    /// It will have 1 or 2 pieces depending on whether the tagger has
@@ -183,13 +166,7 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
 
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
- 
-   
- //  /// returns the original jet (before tagging)
- //  const PseudoJet & original() const {return _original_jet;}
-
- 
- 
+    
  protected:
       double _cos_theta_w; ///< the W helicity angle
       double _top_mass;
@@ -199,18 +176,12 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
       int _mass_ratio_passed;
 
       const JetDefinition::Recombiner  * W_rec;
-   //PseudoJet _W;             ///< the tagged W
-   //PseudoJet _non_W;         ///< the remaining pieces
- //  PseudoJet _original_jet;  ///< the original jet (before tagging)
  
       mutable PseudoJet rW_;
 
    // allow the tagger to set these
    friend class HEPTopTagger;
  };
-
-
-//END ADDED BY CHRISTOPHER SILKWORTH
 
 
 //------------------------------------------------------------------------
