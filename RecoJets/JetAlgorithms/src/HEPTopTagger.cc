@@ -116,7 +116,7 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) :
   _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
   _nfilt(5), _two_step_filt(false), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
-  _rcut_factor(0.5), _mode(0), _triple_metric(0), _minpt_tag(200.), _debug(false), _fat(jet)
+  _rcut_factor(0.5), _mode(0), _triple_metric(0), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
 HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet, 
@@ -231,8 +231,8 @@ void HEPTopTagger::run_tagger() {
 	  fastjet::Pruner pruner(jet_def_prune, _zcut, _rcut_factor);
 	  PseudoJet prunedjet = pruner(triple);
 	  _pruned_mass = prunedjet.m();
-	  _unfiltered_mass = triple.m();	 
-
+	  _unfiltered_mass = triple.m();
+	  
 	  //are all criteria fulfilled?
 	  _is_masscut_passed = false;
 	  if (check_mass_criteria(top_subs)) {

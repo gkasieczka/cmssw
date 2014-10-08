@@ -49,12 +49,26 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   }
 
   external::HEPTopTagger tagger(jet);
-  
-  
 
-  //tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
-  //tagger.set_mass_drop_threshold(_mass_drop_threshold);
-  //tagger.set_max_subjet_mass(_max_subjet_mass);
+  // translate the massRatioWidth (which should be the half-width given in %) 
+  // to values useful for the A-shape cuts
+  double mw_over_mt = 80.4/172.3;
+  double ratio_min = mw_over_mt * (100.-massRatioWidth_)/100.;
+  double ratio_max = mw_over_mt * (100.+massRatioWidth_)/100.;
+
+  
+  // Unclustering & Filtering Settings
+  tagger.set_max_subjet_mass(subjetMass_);
+  tagger.set_mass_drop_threshold(muCut_);
+
+  // How to select among candidates
+  tagger.set_mode(mode_);
+  
+  // Requirements to accept a candidate
+  tagger.set_minpt_tag(minCandPt_); 
+  tagger.set_top_range(minCandMass_, maxCandMass_); 
+  tagger.set_mass_ratio_cut(minM23Cut_, minM13Cut_, maxM13Cut_);
+  tagger.set_mass_ratio_range(ratio_min, ratio_max);
 
   tagger.run_tagger();
 

@@ -72,7 +72,8 @@ public:
   void set_mode(int mode) {_mode = mode;}
   void set_triple_metric(int triple_metric) {_triple_metric = triple_metric;}
   void set_debug(bool debug) {_debug = debug;}
-  void set_minpt_tag(double x) {_minpt_tag = x;}
+  void set_minpt_tag(double x) {_minpt_tag = x;} // DOES NOT DO ANYTHING YET
+  void set_minpt_subjet(double x) {_minpt_subjet = x;}
   
 private:
   const PseudoJet* _jet;
@@ -93,6 +94,7 @@ private:
   int _mode;
   int _triple_metric;
   double _minpt_tag;
+  double _minpt_subjet; // DOES NOT DO ANYTHING YET
   bool _debug;
   PseudoJet _fat;
   
