@@ -39,6 +39,22 @@ double HEPTopTagger::djademod (const fastjet::PseudoJet& subjet_i, const fastjet
   return dj;
 }
 
+double HEPTopTagger::fW() {
+  // Minimal:
+  // |(m_ij / m_123) / (m_w/ m_t) - 1|
+
+  double m12 = (_top_subs[0] + _top_subs[1]).m();
+  double m13 = (_top_subs[0] + _top_subs[2]).m();
+  double m23 = (_top_subs[1] + _top_subs[2]).m();
+  double m123 = (_top_subs[0] + _top_subs[1] + _top_subs[2]).m();
+
+  double fw12 = fabs( (m12/m123) / (_mwmass/_mtmass) - 1);
+  double fw13 = fabs( (m13/m123) / (_mwmass/_mtmass) - 1);
+  double fw23 = fabs( (m23/m123) / (_mwmass/_mtmass) - 1);
+  
+  return std::min(fw12, std::min(fw13, fw23));  
+}
+
 //Find hard substructures
 void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts) {
   PseudoJet parent1(0, 0, 0, 0), parent2(0, 0, 0, 0);
@@ -59,9 +75,9 @@ void HEPTopTagger::store_topsubjets(const std::vector<PseudoJet>& top_subs) {
   double m12 = (top_subs[0] + top_subs[1]).m();
   double m13 = (top_subs[0] + top_subs[2]).m();
   double m23 = (top_subs[1] + top_subs[2]).m();
-  double dm12 = abs(m12 - _mwmass);
-  double dm13 = abs(m13 - _mwmass);
-  double dm23 = abs(m23 - _mwmass);
+  double dm12 = fabs(m12 - _mwmass);
+  double dm13 = fabs(m13 - _mwmass);
+  double dm23 = fabs(m23 - _mwmass);
   
   if (dm23 <= dm12 && dm23 <= dm13) {
     _top_subjets.push_back(top_subs[0]); 
@@ -221,7 +237,7 @@ void HEPTopTagger::run_tagger() {
 	if (_mode == Mode::EARLY_MASSRATIO_SORT_MODDJADE  && !check_mass_criteria(top_subs)) {continue;}
 
 	//is this candidate better than the other? -> update
-	double deltatop = abs(topcandidate.m() - _mtmass);
+	double deltatop = fabs(topcandidate.m() - _mtmass);
 	double djsum = djademod(top_subs[0], top_subs[1], topcandidate) 
 			       + djademod(top_subs[0], top_subs[2], topcandidate)
 			       + djademod(top_subs[1], top_subs[2], topcandidate);

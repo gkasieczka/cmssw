@@ -60,6 +60,7 @@ public:
   double djsum() const {return _djsum;}
   double pruned_mass() const {return _pruned_mass;}
   double unfiltered_mass() const {return _unfiltered_mass;}
+  double fW();
   void get_setting() const;
   void get_info() const;
   const PseudoJet & t() const {return _top_candidate;}
