@@ -187,12 +187,17 @@ void HEPTopTagger::run_tagger() {
 				     std::min(_top_parts[rr].squared_distance(_top_parts[ll]), 
 					 _top_parts[kk].squared_distance(_top_parts[rr])))));
 	JetDefinition filtering_def(_jet_algorithm_filter, filt_top_R);
-	fastjet::Filter filter(filtering_def, fastjet::SelectorNHardest(_nfilt));
+	fastjet::Filter filter(filtering_def, fastjet::SelectorNHardest(_nfilt) * fastjet::SelectorPtMin(_minpt_subjet));
 	PseudoJet topcandidate = filter(triple);
+
 
 	//mass window cut
   	if (topcandidate.m() < _mtmin || _mtmax < topcandidate.m()) continue;
-	
+
+	// Sanity cut: can't recluster less than 3 objects into three subjets
+	if (topcandidate.pieces().size() < 3)
+	  continue;
+       
 	// Recluster to 3 subjets and apply mass plane cuts
 	// Use a self-deleting CS-pointer. Taken from CMSSW version of HTT
 	// Initial CMSSW edit by CKV, suggested by G. P. Salam)	
@@ -200,6 +205,10 @@ void HEPTopTagger::run_tagger() {
 	ClusterSequence *  cs_top_sub = new ClusterSequence(topcandidate.pieces(), reclustering);
         std::vector <PseudoJet> top_subs = sorted_by_pt(cs_top_sub->exclusive_jets(3));         
 	cs_top_sub->delete_self_when_unused();
+
+	// Require the third subjet to be above the pT threshold
+	if (top_subs[2].perp() < _minpt_subjet)
+	  continue;
 
 	if (_mode == 0  && !check_mass_criteria(top_subs)) {continue;}
 
@@ -286,6 +295,7 @@ void HEPTopTagger::get_setting() const {
   std::cout << "max_subjet_mass: " << _max_subjet_mass << std::endl;
   std::cout << "# R_filt: " << _Rfilt << "    ";
   std::cout << "n_filt: " << _nfilt << std::endl;
+  std::cout << "# minimal subjet pt: " << _minpt_subjet << std::endl;
   std::cout << "# minimal reconstructed pt: " << _minpt_tag << std::endl;
   std::cout << "# internal jet algorithms (0 = kt, 1 = C/A, 2 = anti-kt): " << std::endl; 
   std::cout << "#   filtering: "<< _jet_algorithm_filter << std::endl;
