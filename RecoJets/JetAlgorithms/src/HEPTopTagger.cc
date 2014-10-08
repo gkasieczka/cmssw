@@ -115,8 +115,8 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) :
   _mass_drop_threshold(0.8), _max_subjet_mass(30.), 
   _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
-  _nfilt(5), _two_step_filt(false), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
-  _rcut_factor(0.5), _mode(0), _triple_metric(0), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
+  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
+  _rcut_factor(0.5), _mode(0), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
 HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet, 
@@ -126,13 +126,18 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.), 
   _mtmin(150.), _mtmax(200.), _rmin(0.85*mwmass/mtmass), _rmax(1.15*mwmass/mtmass), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
-  _nfilt(5), _two_step_filt(false), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
-  _rcut_factor(0.5), _mode(0), _triple_metric(0), _minpt_tag(200.), _debug(false), _fat(jet)
+  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
+  _rcut_factor(0.5), _mode(0), _minpt_tag(200.), _debug(false), _fat(jet)
 {}
 
 void HEPTopTagger::run_tagger() {
   print_banner();
-  if (_mode != 0 && _mode !=1) {
+
+  if ((_mode != Mode::EARLY_MASSRATIO_SORT_MASS) 
+      && (_mode != Mode::LATE_MASSRATIO_SORT_MASS) 
+      && (_mode != Mode::EARLY_MASSRATIO_SORT_MODDJADE)
+      && (_mode != Mode::LATE_MASSRATIO_SORT_MODDJADE)
+      && (_mode != Mode::TWO_STEP_FILTER) ) {
     std::cout << "ERROR: UNKNOWN MODE" << std::endl;
     return;
   }
@@ -169,13 +174,14 @@ void HEPTopTagger::run_tagger() {
     for (unsigned ll = rr + 1; ll < _top_parts.size(); ll++) {
       for (unsigned kk = ll + 1; kk < _top_parts.size(); kk++) {
 	
-	// Two-step filtering means that we only look at the triplet formed by the
+	// two-step filtering 
+	// This means that we only look at the triplet formed by the
 	// three leading-in-pT subjets-after-unclustering.
-	if(_two_step_filt && rr>0)
+	if((_mode==Mode::TWO_STEP_FILTER) && rr>0)
 	  continue;
-	if(_two_step_filt && ll>1)
+	if((_mode==Mode::TWO_STEP_FILTER) && ll>1)
 	  continue;
-	if(_two_step_filt && kk>2)
+	if((_mode==Mode::TWO_STEP_FILTER) && kk>2)
 	  continue;
 
       	//pick triple
@@ -210,7 +216,9 @@ void HEPTopTagger::run_tagger() {
 	if (top_subs[2].perp() < _minpt_subjet)
 	  continue;
 
-	if (_mode == 0  && !check_mass_criteria(top_subs)) {continue;}
+	// Modes with early 2d-massplane cuts
+	if (_mode == Mode::EARLY_MASSRATIO_SORT_MASS      && !check_mass_criteria(top_subs)) {continue;}
+	if (_mode == Mode::EARLY_MASSRATIO_SORT_MODDJADE  && !check_mass_criteria(top_subs)) {continue;}
 
 	//is this candidate better than the other? -> update
 	double deltatop = abs(topcandidate.m() - _mtmass);
@@ -218,12 +226,27 @@ void HEPTopTagger::run_tagger() {
 			       + djademod(top_subs[0], top_subs[2], topcandidate)
 			       + djademod(top_subs[1], top_subs[2], topcandidate);
 	bool better = false;
-	if (_triple_metric == 0) {
-	  if (deltatop < _delta_top) better = true;
-	} else if (_triple_metric == 1) {
-	  if (djsum > _djsum) better = true;
-	} else {
-	  std::cout << "ERROR: UNKNOWN DISTANCE MEASURE" << std::endl;
+
+	// Modes 0 and 1 sort by top mass
+	if ( (_mode == Mode::EARLY_MASSRATIO_SORT_MASS) 
+	     || (_mode == Mode::LATE_MASSRATIO_SORT_MASS)) {
+	  if (deltatop < _delta_top) 
+	    better = true;
+	}
+	// Modes 2 and 3 sort by modified jade distance
+	else if ( (_mode == Mode::EARLY_MASSRATIO_SORT_MODDJADE) 
+		  || (_mode == Mode::LATE_MASSRATIO_SORT_MODDJADE)) {
+	  if (djsum > _djsum) 
+	    better = true;
+	}
+	// Mode 4 is the two-step filtering. No sorting necessary as
+	// we just look at the triplet of highest pT objects after
+	// unclustering
+	else if (_mode == Mode::TWO_STEP_FILTER) {
+	  better = true;
+	} 
+	else {
+	  std::cout << "ERROR: UNKNOWN MODE (IN DISTANCE MEASURE SELECTION)" << std::endl;
 	  return;
 	}
 
@@ -282,8 +305,11 @@ void HEPTopTagger::get_setting() const {
   std::cout << "#--------------------------------------------------------------------------\n";
   std::cout << "#                         HEPTopTagger Settings" << std::endl;
   std::cout << "#" << std::endl;
-  std::cout << "# mode: " << _mode << " (0 = inverted order, 1 = old default)" << std::endl;
-  std::cout << "# triple metric: " << _triple_metric << " (0 = |m - mtop|, 1 = max. djsum)" << std::endl;
+  std::cout << "# mode: " << _mode << " (0 = EARLY_MASSRATIO_SORT_MASS) " << std::endl;
+  std::cout << "#        "         << " (1 = LATE_MASSRATIO_SORT_MASS)  " << std::endl;
+  std::cout << "#        "         << " (2 = EARLY_MASSRATIO_SORT_MODDJADE)  " << std::endl;
+  std::cout << "#        "         << " (3 = LATE_MASSRATIO_SORT_MODDJADE)  " << std::endl;
+  std::cout << "#        "         << " (4 = TWO_STEP_FILTER)  " << std::endl;
   std::cout << "# top mass: " << _mtmass << "    ";
   std::cout << "W mass: " << _mwmass << std::endl;
   std::cout << "# top mass window: [" << _mtmin << ", " << _mtmax << "]" << std::endl;

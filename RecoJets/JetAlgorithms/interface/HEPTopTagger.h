@@ -1,4 +1,11 @@
-//HEPTopTagger:  mode = 0 (default mode) -> inverted order of cuts, mode = 1 -> old tagger 
+//HEPTopTagger: 
+// Modes:
+// 0 = EARLY_MASSRATIO_SORT_MASS (apply massratio, then sort by distance to true top mass)
+// 1 = LATE_MASSRATIO_SORT_MASS (sort by distance to true top mass, then apply mass-ratio. Old HTT)
+// 2 = EARLY_MASSRATIO_SORT_MODDJADE (apply massratio, then sort by modified d-jade)
+// 3 = LATE_MASSRATIO_SORT_MODDJADE (sort by modified d-jade, then apply mass-ratio)
+// 4 = TWO_STEP_FILTER (take three highest pT objects after unclustering and apply mass ratio)
+
 
 #ifndef __HEPTOPTAGGER_HH__
 #define __HEPTOPTAGGER_HH__
@@ -13,8 +20,16 @@
 // Do not change next line, it's needed by the sed-code that makes the tagger CMSSW-compatible.
 namespace external {
 
+
 class HEPTopTagger {
+
 public:
+
+  enum Mode {EARLY_MASSRATIO_SORT_MASS, 
+	     LATE_MASSRATIO_SORT_MASS, 
+	     EARLY_MASSRATIO_SORT_MODDJADE,
+	     LATE_MASSRATIO_SORT_MODDJADE,
+	     TWO_STEP_FILTER};
 
   typedef fastjet::ClusterSequence ClusterSequence;
   typedef fastjet::JetAlgorithm JetAlgorithm;
@@ -64,13 +79,11 @@ public:
   void set_mass_ratio_range(double rmin, double rmax) {_rmin = rmin; _rmax = rmax;}
   void set_mass_ratio_cut(double m23cut, double m13cutmin,double m13cutmax) {_m23cut = m23cut; _m13cutmin = m13cutmin; _m13cutmax = m13cutmax;}
   void set_nfilt(unsigned nfilt) {_nfilt = nfilt;}
-  void set_two_step_filt(bool two_step_filt) {_two_step_filt=two_step_filt;}
   void set_Rfilt(double Rfilt) {_Rfilt = Rfilt;}
   void set_filtering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm_filter = jet_algorithm;}
   void set_reclustering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm_recluster = jet_algorithm;}
   void set_pruner_cuts(double zcut, double rcut_factor) {_zcut = zcut; _rcut_factor = rcut_factor;}
   void set_mode(int mode) {_mode = mode;}
-  void set_triple_metric(int triple_metric) {_triple_metric = triple_metric;}
   void set_debug(bool debug) {_debug = debug;}
   void set_minpt_tag(double x) {_minpt_tag = x;}
   void set_minpt_subjet(double x) {_minpt_subjet = x;}
@@ -84,7 +97,6 @@ private:
   double _rmin, _rmax;
   double _m23cut, _m13cutmin, _m13cutmax;
   size_t _nfilt;
-  bool _two_step_filt;
   double _Rfilt;
   double _Rprun;
   JetAlgorithm _jet_algorithm_filter;
@@ -92,7 +104,6 @@ private:
   double _zcut;
   double _rcut_factor;
   int _mode;
-  int _triple_metric;
   double _minpt_tag;
   double _minpt_subjet;
   bool _debug;
