@@ -55,11 +55,12 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   double mw_over_mt = 80.4/172.3;
   double ratio_min = mw_over_mt * (100.-massRatioWidth_)/100.;
   double ratio_max = mw_over_mt * (100.+massRatioWidth_)/100.;
-
+ 
   
-  // Unclustering & Filtering Settings
+  // Unclustering, Filtering & Subjet Settings
   tagger.set_max_subjet_mass(subjetMass_);
   tagger.set_mass_drop_threshold(muCut_);
+  tagger.set_minpt_subjet(minSubjetPt_); 
 
   // How to select among candidates
   tagger.set_mode(mode_);
@@ -72,13 +73,13 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
 
   tagger.run_tagger();
 
-  // TODO: fixme 
-  // check that we passed the tagger; if not return a blank PseudoJet
-  //if (_use_subjet_mass_cuts) {
-  //  if (!tagger.is_masscut_passed()) // encompasses is_maybe_top() plus subjet mass cuts
-  //    return PseudoJet();
-  //} else if (!tagger.is_maybe_top())
-  //  return PseudoJet();
+  // Requires:
+  //   - top mass window
+  //   - mass ratio cuts
+  //   - minimal candidate pT
+  // If this is not intended: use loose top mass and ratio windows
+  if (!tagger.is_tagged())
+    return PseudoJet();
   
   // create the result and its structure
   const JetDefinition::Recombiner *rec
@@ -101,15 +102,7 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   s->_fW = -1.; // TODO: Add here!!!
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
-  // Check selectors to see if identified top, W pass and cuts
-  //
-  // Note that we could perhaps ensure this cut before constructing
-  // the result structure but this has the advantage that the top
-  // 4-vector is already available and does not have to de re-computed
-  if (! _top_selector.pass(result) || ! _W_selector.pass(W)) {
-    result *= 0.0;
-  }
-
+  // Removed selectors as all cuts are applied ion HTT
   return result;
 }
 

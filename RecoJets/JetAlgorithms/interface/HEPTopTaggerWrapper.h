@@ -190,10 +190,18 @@ inline std::string HEPTopTagger::description() const{
 
   // TODO: FIXME!!!
   std::ostringstream oss;
-  //oss << "HEPTopTagger with {max. subjet mass = " << _max_subjet_mass
-  //    << ", mass-drop threshold = " << _mass_drop_threshold
-  //    << ", and " << (_use_subjet_mass_cuts ? "using" : "not using") << " subjet mass cuts" << std::endl;
-  //oss << description_of_selectors();
+  oss << "HEPTopTagger with: "
+      << "minSubjetPt = " << minSubjetPt_ 
+      << "minCandPt = " << minCandPt_ 
+      << "subjetMass = " << subjetMass_ 
+      << "muCut = " << muCut_ 
+      << "mode = " << mode_ 
+      << "minCandMass = " << minCandMass_ 
+      << "maxCandMass = " << maxCandMass_ 
+      << "massRatioWidth = " << massRatioWidth_ 
+      << "minM23Cut = " << minM23Cut_ 
+      << "minM13Cut = " << minM13Cut_ 
+      << "maxM13Cut = " << maxM13Cut_ << std::endl;
   return oss.str();
 }
 
