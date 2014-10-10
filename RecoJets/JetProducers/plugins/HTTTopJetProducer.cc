@@ -19,7 +19,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        mode_(0),
        minCandMass_(150.),
        maxCandMass_(200.),
-       massRatioWidth_(0.15),
+       massRatioWidth_(15),
        minM23Cut_(0.35),
        minM13Cut_(0.2),
        maxM13Cut_(1.3),
