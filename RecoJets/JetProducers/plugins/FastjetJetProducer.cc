@@ -122,10 +122,6 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     maxDepth_ = -1;
     useExplicitGhosts_ = true;
 
-    if ( iConfig.exists("writeCompound") ) {
-      std::cout << "Write Compound = " << iConfig.getParameter<bool>("writeCompound") << std::endl;
-    }
-
     if ( iConfig.exists("useMassDropTagger") ) {
       useMassDropTagger_ = iConfig.getParameter<bool>("useMassDropTagger");
       muCut_ = iConfig.getParameter<double>("muCut");
