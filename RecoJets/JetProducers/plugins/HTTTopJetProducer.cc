@@ -10,6 +10,7 @@ using namespace std;
 
 HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        FastjetJetProducer( conf ),
+       multiR_(false),
        minFatjetPt_(200.),
        minSubjetPt_(20.),
        minCandPt_(200.),
@@ -27,6 +28,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 {
   
   // Read in all the options from the configuration
+  if ( conf.exists("multiR") ) 
+    multiR_ = conf.getParameter<bool>("multiR");
+
   if ( conf.exists("minFatjetPt") ) 
     minFatjetPt_ = conf.getParameter<double>("minFatjetPt");
   
@@ -71,6 +75,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   
   // Create the tagger-wrapper
   produces<HTTTopJetTagInfoCollection>();
+
   fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
 										   minCandPt_,
 										   subjetMass_, 	    

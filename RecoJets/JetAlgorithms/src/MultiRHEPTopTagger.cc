@@ -62,7 +62,8 @@ void MultiR_TopTagger::run_tagger() {
   int stepR = int(_step_R * 10);
 
   for (int R = maxR; R >= minR; R -= stepR) {
-
+    
+    // TODO: check!
     // Deactivated this piece for now as dR_max_triplet is not used.
     // Problem in lines below?
     //  
@@ -102,7 +103,7 @@ void MultiR_TopTagger::run_tagger() {
     if (_Rmin == 0 && R < maxR) {
       double delta_m = fabs(_HEPTopTagger[maxR].top_candidate().m() - _HEPTopTagger[R].top_candidate().m());
       if (delta_m > _multiR_threshold*_HEPTopTagger[maxR].top_candidate().m() || _HEPTopTagger[R].top_candidate().m() == 0) {
-	_Rmin = R + 1;
+	_Rmin = R + stepR;
       }
     }
     
@@ -112,7 +113,7 @@ void MultiR_TopTagger::run_tagger() {
   }//End of loop over R
 
   if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() > 0)
-    _Rmin = 5;
+    _Rmin = minR;
 
   _mass_Rmin = _HEPTopTagger[_Rmin].top_candidate().m();
   _pt_Rmin = _HEPTopTagger[_Rmin].top_candidate().perp();
