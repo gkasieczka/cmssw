@@ -46,19 +46,23 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
     throw Error("HEPTopTagger can only be applied on jets having an associated (and valid) ClusterSequence");
   }
 
-  external::HEPTopTagger tagger(jet);
+  double m_W = 80.4;
+  double m_top = 172.3;
 
-  // translate the massRatioWidth (which should be the half-width given in %) 
-  // to values useful for the A-shape cuts
-  double mw_over_mt = 80.4/172.3;
-  double ratio_min = mw_over_mt * (100.-massRatioWidth_)/100.;
-  double ratio_max = mw_over_mt * (100.+massRatioWidth_)/100.;
- 
-  
+  external::MultiR_TopTagger tagger(1.5,   // R_max
+				    0.5,   // R_min
+				    0.1,   // R_step
+				    0.2,   // Mass-drop threshold
+				    false, // use_dR_max_triplet
+				    *(jet.associated_cluster_sequence()),
+				    jet,
+				    m_top,
+				    m_W);
+   
   // Unclustering, Filtering & Subjet Settings
   tagger.set_max_subjet_mass(subjetMass_);
-  tagger.set_mass_drop_threshold(muCut_);
-  tagger.set_minpt_subjet(minSubjetPt_); 
+  tagger.set_mass_drop_threshold(muCut_); 
+  tagger.set_minpt_subjet(minSubjetPt_);
 
   // How to select among candidates
   tagger.set_mode(mode_);
@@ -67,23 +71,24 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   tagger.set_minpt_tag(minCandPt_); 
   tagger.set_top_range(minCandMass_, maxCandMass_); 
   tagger.set_mass_ratio_cut(minM23Cut_, minM13Cut_, maxM13Cut_);
-  tagger.set_mass_ratio_range(ratio_min, ratio_max);
+  tagger.set_f_W(massRatioWidth_/100.);
 
   tagger.run_tagger();
-
-  // Requires:
-  //   - top mass window
-  //   - mass ratio cuts
-  //   - minimal candidate pT
+  
+  // MultiR tagging requirements:
+  //   - found a valid R_min
+  //   - HTT top mass window
+  //   - HTT mass ratio cuts
+  //   - HTT minimal candidate pT
   // If this is not intended: use loose top mass and ratio windows
-  if (!tagger.is_tagged())
-    return PseudoJet();
+  if ( (tagger.Rmin_raw()==0) || (! tagger.cand_Rmin().is_tagged()))
+      return PseudoJet();
   
   // create the result and its structure
   const JetDefinition::Recombiner *rec
     = jet.associated_cluster_sequence()->jet_def().recombiner();
 
-  const vector<PseudoJet>& subjets = tagger.top_subjets();
+  const vector<PseudoJet>& subjets = tagger.cand_Rmin().top_subjets();
   assert(subjets.size() == 3);
 
   PseudoJet non_W = subjets[0];
@@ -94,13 +99,13 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   PseudoJet result = join<MultiRHEPTopTaggerStructure>( W1, W2, non_W, *rec);
   MultiRHEPTopTaggerStructure *s = (MultiRHEPTopTaggerStructure*) result.structure_non_const_ptr();
 
-  s->_top_mass = tagger.t().m();
-  s->_pruned_mass = tagger.pruned_mass();
-  s->_unfiltered_mass = tagger.unfiltered_mass();
-  s->_fW = tagger.fW();
-  s->_mass_ratio_passed = tagger.is_masscut_passed();
+  s->_top_mass = tagger.cand_Rmin().t().m();
+  s->_pruned_mass = tagger.cand_Rmin().pruned_mass();
+  s->_unfiltered_mass = tagger.cand_Rmin().unfiltered_mass();
+  s->_fW = tagger.cand_Rmin().fW();
+  s->_mass_ratio_passed = tagger.cand_Rmin().is_masscut_passed();
+  s->_Rmin = tagger.Rmin();
 
-  // Removed selectors as all cuts are applied ion HTT
   return result;
 }
 

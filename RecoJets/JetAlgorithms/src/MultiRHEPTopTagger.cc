@@ -36,8 +36,8 @@ MultiR_TopTagger::MultiR_TopTagger(double max_fatjet_R,
 				   double step_R,
 				   double multiR_threshold,
 				   bool use_dR_max_triplet,
-				   fastjet::ClusterSequence & cs, 
-				   fastjet::PseudoJet & jet, 
+				   const fastjet::ClusterSequence & cs, 
+				   const fastjet::PseudoJet & jet, 
 				   double mtmass, double mwmass
 				   ) : _cs(&cs),  _jet(&jet),
 				       _mtmass(mtmass),	_mwmass(mwmass), _max_fatjet_R(max_fatjet_R), _min_fatjet_R(min_fatjet_R), _step_R(step_R), _multiR_threshold(multiR_threshold), _use_dR_max_triplet(use_dR_max_triplet), _debug(false)
@@ -86,11 +86,15 @@ void MultiR_TopTagger::run_tagger() {
       htt.set_top_range(_top_range[0], _top_range[1]);
       htt.set_mass_ratio_cut(_mass_ratios[0], _mass_ratios[1], _mass_ratios[2]);
       htt.set_max_subjet_mass(_subjet_mass);
+      htt.set_minpt_subjet(_minpt_subjet);
+      htt.set_minpt_tag(_minpt_tag);
+      htt.set_mass_drop_threshold(_mass_drop_threshold);
       htt.set_nfilt(_n_filt);
       htt.set_Rfilt(_R_filt);
       htt.set_mass_ratio_range((1.-_f_W)*_mwmass/_mtmass, (1.+_f_W)*_mwmass/_mtmass); 
-      htt.set_mode(1);	
+      htt.set_mode(_mode); 
       
+
       htt.run_tagger();
      
       double deltatop = fabs(htt.top_candidate().m() - _mtmass);
@@ -100,18 +104,19 @@ void MultiR_TopTagger::run_tagger() {
       }
     } //End of loop over small_fatjets
     
-    if (_Rmin == 0 && R < maxR) {
-      double delta_m = fabs(_HEPTopTagger[maxR].top_candidate().m() - _HEPTopTagger[R].top_candidate().m());
-      if (delta_m > _multiR_threshold*_HEPTopTagger[maxR].top_candidate().m() || _HEPTopTagger[R].top_candidate().m() == 0) {
+    // Only check if we have not found Rmin yet
+    if (_Rmin == 0 && R < maxR) {                 
+      // If the new mass is OUTSIDE the window ..
+      if (_HEPTopTagger[R].top_candidate().m() < (1-_multiR_threshold)*_HEPTopTagger[maxR].top_candidate().m())
+	// .. set _Rmin to the previous mass 
 	_Rmin = R + stepR;
-      }
     }
     
     big_fatjets = small_fatjets;
     small_fatjets.clear();
-
   }//End of loop over R
 
+  // if we did not find Rmin in the loop, pick the last value
   if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() > 0)
     _Rmin = minR;
 

@@ -76,18 +76,35 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   // Create the tagger-wrapper
   produces<HTTTopJetTagInfoCollection>();
 
-  fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
-										   minCandPt_,
-										   subjetMass_, 	    
-										   muCut_, 		    
-										   mode_, 		    
-										   minCandMass_, 	    
-										   maxCandMass_, 	    
-										   massRatioWidth_, 	    
-										   minM23Cut_, 	    
-										   minM13Cut_, 	    
-										   maxM13Cut_)); 
+  // Signal to the VirtualJetProducer that we have to add HTT information
   fromHTTTopJetProducer_ = 1;
+
+  if (multiR_){
+    fjMultiRHEPTopTagger_ = std::auto_ptr<fastjet::MultiRHEPTopTagger>(new fastjet::MultiRHEPTopTagger(minSubjetPt_, 
+												       minCandPt_,
+												       subjetMass_, 	    
+												       muCut_, 		    
+												       mode_, 		    
+												       minCandMass_, 	    
+												       maxCandMass_, 	    
+												       massRatioWidth_, 	    
+												       minM23Cut_, 	    
+												       minM13Cut_, 	    
+												       maxM13Cut_)); 
+  }
+  else{
+    fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
+										     minCandPt_,
+										     subjetMass_, 	    
+										     muCut_, 		    
+										     mode_, 		    
+										     minCandMass_, 	    
+										     maxCandMass_, 	    
+										     massRatioWidth_, 	    
+										     minM23Cut_, 	    
+										     minM13Cut_, 	    
+										     maxM13Cut_)); 
+  }
 
 }
 
@@ -125,6 +142,7 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
   }
 
   fastjet::HEPTopTagger & HEPTagger = *fjHEPTopTagger_;
+  fastjet::MultiRHEPTopTagger & MultiRHEPTagger = *fjMultiRHEPTopTagger_;
 
   vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
   if ( verbose_ )cout<<"Loop over jets"<<endl;
@@ -133,8 +151,12 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
     if (verbose_) cout << "CMS FJ jet pt: " << (*jetIt).perp() << endl;
     
     fastjet::PseudoJet taggedJet;
-    taggedJet = HEPTagger.result(*jetIt);
-    
+
+    if (multiR_)
+      taggedJet = MultiRHEPTagger.result(*jetIt);
+    else
+      taggedJet = HEPTagger.result(*jetIt);
+
     if (taggedJet != 0){
       fjJets_.push_back(taggedJet);           
     }
@@ -163,21 +185,38 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
     edm::RefToBase<reco::Jet> rtb(ref);  
     
-    fastjet::HEPTopTaggerStructure *s = (fastjet::HEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
-
-    properties.topMass          = s->top_mass();
-    properties.unfilteredMass	= s->unfiltered_mass();
-    properties.prunedMass	= s->pruned_mass();
-    properties.fW		= s->fW();
-    properties.massRatioPassed  = s->mass_ratio_passed();
-
-    // Only needed for MultiR tagger
-    properties.isMultiR	        = 0;
-    properties.Rmin	        = -1.;
-    properties.RminExpected     = -1.;
-    
-    tagInfo.insert(rtb, properties );
-    tagInfos->push_back( tagInfo );
+    if (multiR_){
+      fastjet::MultiRHEPTopTaggerStructure *s = (fastjet::MultiRHEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
+      
+      properties.topMass         = s->top_mass();
+      properties.unfilteredMass	 = s->unfiltered_mass();
+      properties.prunedMass	 = s->pruned_mass();
+      properties.fW		 = s->fW();
+      properties.massRatioPassed = s->mass_ratio_passed();     
+      properties.isMultiR	 = 1;
+      properties.Rmin	         = s->R_min();    
+      properties.RminExpected    = 999.;
+      
+      tagInfo.insert(rtb, properties );
+      tagInfos->push_back( tagInfo );
+    }
+    else{      
+      fastjet::HEPTopTaggerStructure *s = (fastjet::HEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
+      
+      properties.topMass         = s->top_mass();
+      properties.unfilteredMass	 = s->unfiltered_mass();
+      properties.prunedMass	 = s->pruned_mass();
+      properties.fW		 = s->fW();
+      properties.massRatioPassed = s->mass_ratio_passed();
+      
+      // Only needed for MultiR tagger
+      properties.isMultiR	        = 0;
+      properties.Rmin	        = -1.;
+      properties.RminExpected     = -1.;
+      
+      tagInfo.insert(rtb, properties );
+      tagInfos->push_back( tagInfo );
+    }
   }  
 
   iEvent.put( tagInfos );

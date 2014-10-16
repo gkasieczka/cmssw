@@ -147,6 +147,9 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
    /// returns fW
    inline double fW() const {return _fW;}
 
+   /// returns Rmin
+   inline double R_min() const {return _Rmin;}
+
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
     
@@ -155,9 +158,10 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
       double _top_mass;
       double _unfiltered_mass;
       double _pruned_mass;
-      double _fW;
+      double _fW;      
       int _mass_ratio_passed;
-
+      double _Rmin;
+      
       const JetDefinition::Recombiner  * W_rec;
  
       mutable PseudoJet rW_;
