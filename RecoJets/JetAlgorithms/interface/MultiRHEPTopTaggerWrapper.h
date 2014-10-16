@@ -40,7 +40,9 @@ public:
 		     double massRatioWidth, 
 		     double minM23Cut, 
 		     double minM13Cut, 
-		     double maxM13Cut) : minSubjetPt_(minSubjetPt),
+		     double maxM13Cut,
+		     double R_max,
+		     double R_min) : minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
     muCut_(muCut),
@@ -50,7 +52,9 @@ public:
     massRatioWidth_(massRatioWidth),
     minM23Cut_(minM23Cut),
     minM13Cut_(minM13Cut),
-    maxM13Cut_(maxM13Cut)   
+    maxM13Cut_(maxM13Cut),
+    R_max_(R_max),
+    R_min_(R_min)
   {}
 
   /// returns a textual description of the tagger
@@ -65,7 +69,7 @@ public:
   // the type of the associated structure
   typedef MultiRHEPTopTaggerStructure StructureType;
 
-private:
+private: 
     double minSubjetPt_; // Minimal pT for subjets [GeV]
     double minCandPt_;   // Minimal pT to return a candidate [GeV]
  
@@ -89,6 +93,9 @@ private:
     double minM23Cut_; // minimal value of m23/m123
     double minM13Cut_; // minimal value of atan(m13/m12)
     double maxM13Cut_; // maximal value of atan(m13/m12)
+
+    double R_max_; // Maximal fatjet size to consider
+    double R_min_; // Minimal fatjet size to consider
 };
 
 
@@ -97,7 +104,6 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
    /// ctor with pieces initialisation
    MultiRHEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
-    _cos_theta_w(0.0),
     _top_mass(0.0),
     _unfiltered_mass(0.0),
     _pruned_mass(0.0),
@@ -132,9 +138,6 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
      return _pieces[2];
    }
  
-   /// returns the W helicity angl
-   inline double cos_theta_W() const {return _cos_theta_w;}
-
    /// returns the candidate mass
    inline double top_mass() const {return _top_mass;}
 
@@ -154,7 +157,6 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
     
  protected:
-      double _cos_theta_w; ///< the W helicity angle
       double _top_mass;
       double _unfiltered_mass;
       double _pruned_mass;
@@ -176,7 +178,6 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
 // description of the tagger
 inline std::string MultiRHEPTopTagger::description() const{ 
 
-  // TODO: FIXME!!!
   std::ostringstream oss;
   oss << "MultiRHEPTopTagger with: "
       << "minSubjetPt = " << minSubjetPt_ 
@@ -188,8 +189,9 @@ inline std::string MultiRHEPTopTagger::description() const{
       << "maxCandMass = " << maxCandMass_ 
       << "massRatioWidth = " << massRatioWidth_ 
       << "minM23Cut = " << minM23Cut_ 
-      << "minM13Cut = " << minM13Cut_ 
-      << "maxM13Cut = " << maxM13Cut_ << std::endl;
+      << "minM13Cut = " << minM13Cut_
+      << "Rmax = " << R_max_ 
+      << "Rmin = " << R_min_ << std::endl;
   return oss.str();
 }
 

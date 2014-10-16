@@ -114,7 +114,6 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    /// ctor with pieces initialisation
    HEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
-    _cos_theta_w(0.0),
     _top_mass(0.0),
     _unfiltered_mass(0.0),
     _pruned_mass(0.0),
@@ -149,9 +148,6 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
      return _pieces[2];
    }
  
-   /// returns the W helicity angl
-   inline double cos_theta_W() const {return _cos_theta_w;}
-
    /// returns the candidate mass
    inline double top_mass() const {return _top_mass;}
 
@@ -168,7 +164,6 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
     
  protected:
-      double _cos_theta_w; ///< the W helicity angle
       double _top_mass;
       double _unfiltered_mass;
       double _pruned_mass;
@@ -188,7 +183,6 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
 // description of the tagger
 inline std::string HEPTopTagger::description() const{ 
 
-  // TODO: FIXME!!!
   std::ostringstream oss;
   oss << "HEPTopTagger with: "
       << "minSubjetPt = " << minSubjetPt_ 

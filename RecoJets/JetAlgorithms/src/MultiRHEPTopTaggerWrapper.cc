@@ -49,9 +49,9 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   double m_W = 80.4;
   double m_top = 172.3;
 
-  external::MultiR_TopTagger tagger(1.5,   // R_max
-				    0.5,   // R_min
-				    0.1,   // R_step
+  external::MultiR_TopTagger tagger(R_max_,   // R_max
+				    R_min_,   // R_min
+				    0.1,   // R_step (using a stepsize smaller than 0.1 would currently not work)
 				    0.2,   // Mass-drop threshold
 				    false, // use_dR_max_triplet
 				    *(jet.associated_cluster_sequence()),
@@ -105,6 +105,8 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   s->_fW = tagger.cand_Rmin().fW();
   s->_mass_ratio_passed = tagger.cand_Rmin().is_masscut_passed();
   s->_Rmin = tagger.Rmin();
+  // TODO: Add Rmin(expected)
+  
 
   return result;
 }

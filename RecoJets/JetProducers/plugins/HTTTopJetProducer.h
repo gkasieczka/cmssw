@@ -123,6 +123,9 @@ namespace cms
     double minM23Cut_; // minimal value of m23/m123 (tagger)
     double minM13Cut_; // minimal value of atan(m13/m12) (tagger)
     double maxM13Cut_; // maximal value of atan(m13/m12) (tagger)
+
+    double maxR_; // maximal fatjet size for MultiR tagger (tagger)
+    double minR_; // minimal fatjet size for MultiR tagger (tagger)
         
     bool verbose_;
 

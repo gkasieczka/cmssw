@@ -24,6 +24,8 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        minM23Cut_(0.35),
        minM13Cut_(0.2),
        maxM13Cut_(1.3),
+       maxR_(1.5),
+       minR_(0.5),
        verbose_(false )
 {
   
@@ -69,6 +71,13 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   
   if ( conf.exists("maxM13Cut") )
     maxM13Cut_ = conf.getParameter<double>("maxM13Cut");
+
+  if ( conf.exists("maxR") )
+    maxR_ = conf.getParameter<double>("maxR");
+
+  if ( conf.exists("minR") )
+    minR_ = conf.getParameter<double>("minR");
+
   
   if ( conf.exists("verbose") )
     verbose_ = conf.getParameter<bool>("verbose");
@@ -90,7 +99,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 												       massRatioWidth_, 	    
 												       minM23Cut_, 	    
 												       minM13Cut_, 	    
-												       maxM13Cut_)); 
+												       maxM13Cut_,
+												       maxR_,
+												       minR_)); 
   }
   else{
     fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
