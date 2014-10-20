@@ -34,6 +34,8 @@ public:
 		     double minCandPt, 
 		     double subjetMass, 
 		     double muCut, 
+		     double filtR,
+		     int filtN,
 		     int mode, 
 		     double minCandMass, 
 		     double maxCandMass, 
@@ -46,6 +48,8 @@ public:
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
     muCut_(muCut),
+    filtR_(filtR),
+    filtN_(filtN),
     mode_(mode),
     minCandMass_(minCandMass),
     maxCandMass_(maxCandMass),
@@ -75,6 +79,9 @@ private:
  
     double subjetMass_; // Mass above which subjets are further unclustered
     double muCut_; // Mass drop threshold
+    
+    double filtR_; // maximal filtering radius
+    int filtN_; // number of filtered subjets to use
     
     // HEPTopTagger Mode
     // 0: do 2d-plane, return candidate with delta m_top minimal
@@ -184,6 +191,8 @@ inline std::string MultiRHEPTopTagger::description() const{
       << "minCandPt = " << minCandPt_ 
       << "subjetMass = " << subjetMass_ 
       << "muCut = " << muCut_ 
+      << "filtR = " << filtR_ 
+      << "filtN = " << filtN_     
       << "mode = " << mode_ 
       << "minCandMass = " << minCandMass_ 
       << "maxCandMass = " << maxCandMass_ 

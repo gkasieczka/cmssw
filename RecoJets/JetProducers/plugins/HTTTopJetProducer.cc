@@ -17,6 +17,8 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        maxFatjetAbsEta_(2.5),
        subjetMass_(30.),
        muCut_(0.8),
+       filtR_(0.3),
+       filtN_(5),       
        mode_(0),
        minCandMass_(150.),
        maxCandMass_(200.),
@@ -50,6 +52,12 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   
   if ( conf.exists("muCut") )
     muCut_ = conf.getParameter<double>("muCut");
+
+  if ( conf.exists("filtR") )
+    filtR_ = conf.getParameter<double>("filtR");
+
+  if ( conf.exists("filtN") )
+    filtN_ = conf.getParameter<int>("filtN");
   
   if ( conf.exists("mode") )
     mode_ = conf.getParameter<int>("mode");
@@ -92,7 +100,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
     fjMultiRHEPTopTagger_ = std::auto_ptr<fastjet::MultiRHEPTopTagger>(new fastjet::MultiRHEPTopTagger(minSubjetPt_, 
 												       minCandPt_,
 												       subjetMass_, 	    
-												       muCut_, 		    
+												       muCut_, 	
+												       filtR_,
+												       filtN_,
 												       mode_, 		    
 												       minCandMass_, 	    
 												       maxCandMass_, 	    
@@ -108,6 +118,8 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 										     minCandPt_,
 										     subjetMass_, 	    
 										     muCut_, 		    
+										     filtR_,
+										     filtN_,
 										     mode_, 		    
 										     minCandMass_, 	    
 										     maxCandMass_, 	    

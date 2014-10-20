@@ -105,6 +105,9 @@ namespace cms
 
     double subjetMass_; // Mass above which subjets are further unclustered (tagger)
     double muCut_; // Mass drop threshold (tagger)
+
+    double filtR_; // maximal filtering radius
+    int filtN_; // number of filtered subjets to use
     
     // HEPTopTagger Mode (tagger):
     // 0: do 2d-plane, return candidate with delta m_top minimal

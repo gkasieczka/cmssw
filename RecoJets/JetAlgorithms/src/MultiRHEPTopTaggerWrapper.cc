@@ -62,6 +62,8 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   // Unclustering, Filtering & Subjet Settings
   tagger.set_max_subjet_mass(subjetMass_);
   tagger.set_mass_drop_threshold(muCut_); 
+  tagger.set_Rfilt(filtR_);
+  tagger.set_nfilt(filtN_);
   tagger.set_minpt_subjet(minSubjetPt_);
 
   // How to select among candidates
