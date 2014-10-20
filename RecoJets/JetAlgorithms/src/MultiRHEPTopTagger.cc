@@ -79,7 +79,9 @@ void MultiR_TopTagger::run_tagger() {
     if (_debug) {cout << "R = " << R << " -> n_small_fatjets = " << small_fatjets.size();}
     
     _n_small_fatjets[R] = small_fatjets.size();
-    double dummy = 1000000000000.0;
+
+    // We are sorting by pt - so start with a negative dummy
+    double dummy = -99999;
 
     for (unsigned i = 0; i < small_fatjets.size(); i++) {
       external::HEPTopTagger htt(small_fatjets[i], _mtmass, _mwmass);
@@ -94,12 +96,10 @@ void MultiR_TopTagger::run_tagger() {
       htt.set_mass_ratio_range((1.-_f_W)*_mwmass/_mtmass, (1.+_f_W)*_mwmass/_mtmass); 
       htt.set_mode(_mode); 
       
-
       htt.run_tagger();
      
-      double deltatop = fabs(htt.top_candidate().m() - _mtmass);
-      if (deltatop < dummy) {
-	dummy = deltatop;
+      if (htt.top_candidate().perp() > dummy) {
+	dummy = htt.top_candidate().perp();
 	_HEPTopTagger[R] = htt;
       }
     } //End of loop over small_fatjets
