@@ -84,7 +84,7 @@ public:
   void set_filtering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm_filter = jet_algorithm;}
   void set_reclustering_jetalgorithm(JetAlgorithm jet_algorithm) {_jet_algorithm_recluster = jet_algorithm;}
   void set_pruner_cuts(double zcut, double rcut_factor) {_zcut = zcut; _rcut_factor = rcut_factor;}
-  void set_mode(int mode) {_mode = mode;}
+  void set_mode(int mode) {_mode = Mode(mode);}
   void set_debug(bool debug) {_debug = debug;}
   void set_minpt_tag(double x) {_minpt_tag = x;}
   void set_minpt_subjet(double x) {_minpt_subjet = x;}
@@ -104,7 +104,7 @@ private:
   JetAlgorithm _jet_algorithm_recluster;
   double _zcut;
   double _rcut_factor;
-  int _mode;
+  Mode _mode;
   double _minpt_tag;
   double _minpt_subjet;
   bool _debug;

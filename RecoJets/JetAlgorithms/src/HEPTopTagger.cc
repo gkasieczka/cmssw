@@ -132,7 +132,7 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) :
   _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
   _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
-  _rcut_factor(0.5), _mode(0), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
+  _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
 HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet, 
@@ -143,17 +143,17 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet,
   _mtmin(150.), _mtmax(200.), _rmin(0.85*mwmass/mtmass), _rmax(1.15*mwmass/mtmass), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
   _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
-  _rcut_factor(0.5), _mode(0), _minpt_tag(200.), _debug(false), _fat(jet)
+  _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
 void HEPTopTagger::run_tagger() {
   print_banner();
 
-  if ((_mode != Mode::EARLY_MASSRATIO_SORT_MASS) 
-      && (_mode != Mode::LATE_MASSRATIO_SORT_MASS) 
-      && (_mode != Mode::EARLY_MASSRATIO_SORT_MODDJADE)
-      && (_mode != Mode::LATE_MASSRATIO_SORT_MODDJADE)
-      && (_mode != Mode::TWO_STEP_FILTER) ) {
+  if ((_mode != EARLY_MASSRATIO_SORT_MASS) 
+      && (_mode != LATE_MASSRATIO_SORT_MASS) 
+      && (_mode != EARLY_MASSRATIO_SORT_MODDJADE)
+      && (_mode != LATE_MASSRATIO_SORT_MODDJADE)
+      && (_mode != TWO_STEP_FILTER) ) {
     std::cout << "ERROR: UNKNOWN MODE" << std::endl;
     return;
   }
@@ -193,11 +193,11 @@ void HEPTopTagger::run_tagger() {
 	// two-step filtering 
 	// This means that we only look at the triplet formed by the
 	// three leading-in-pT subjets-after-unclustering.
-	if((_mode==Mode::TWO_STEP_FILTER) && rr>0)
+	if((_mode==TWO_STEP_FILTER) && rr>0)
 	  continue;
-	if((_mode==Mode::TWO_STEP_FILTER) && ll>1)
+	if((_mode==TWO_STEP_FILTER) && ll>1)
 	  continue;
-	if((_mode==Mode::TWO_STEP_FILTER) && kk>2)
+	if((_mode==TWO_STEP_FILTER) && kk>2)
 	  continue;
 
       	//pick triple
@@ -233,8 +233,8 @@ void HEPTopTagger::run_tagger() {
 	  continue;
 
 	// Modes with early 2d-massplane cuts
-	if (_mode == Mode::EARLY_MASSRATIO_SORT_MASS      && !check_mass_criteria(top_subs)) {continue;}
-	if (_mode == Mode::EARLY_MASSRATIO_SORT_MODDJADE  && !check_mass_criteria(top_subs)) {continue;}
+	if (_mode == EARLY_MASSRATIO_SORT_MASS      && !check_mass_criteria(top_subs)) {continue;}
+	if (_mode == EARLY_MASSRATIO_SORT_MODDJADE  && !check_mass_criteria(top_subs)) {continue;}
 
 	//is this candidate better than the other? -> update
 	double deltatop = fabs(topcandidate.m() - _mtmass);
@@ -244,21 +244,21 @@ void HEPTopTagger::run_tagger() {
 	bool better = false;
 
 	// Modes 0 and 1 sort by top mass
-	if ( (_mode == Mode::EARLY_MASSRATIO_SORT_MASS) 
-	     || (_mode == Mode::LATE_MASSRATIO_SORT_MASS)) {
+	if ( (_mode == EARLY_MASSRATIO_SORT_MASS) 
+	     || (_mode == LATE_MASSRATIO_SORT_MASS)) {
 	  if (deltatop < _delta_top) 
 	    better = true;
 	}
 	// Modes 2 and 3 sort by modified jade distance
-	else if ( (_mode == Mode::EARLY_MASSRATIO_SORT_MODDJADE) 
-		  || (_mode == Mode::LATE_MASSRATIO_SORT_MODDJADE)) {
+	else if ( (_mode == EARLY_MASSRATIO_SORT_MODDJADE) 
+		  || (_mode == LATE_MASSRATIO_SORT_MODDJADE)) {
 	  if (djsum > _djsum) 
 	    better = true;
 	}
 	// Mode 4 is the two-step filtering. No sorting necessary as
 	// we just look at the triplet of highest pT objects after
 	// unclustering
-	else if (_mode == Mode::TWO_STEP_FILTER) {
+	else if (_mode == TWO_STEP_FILTER) {
 	  better = true;
 	} 
 	else {

@@ -33,14 +33,16 @@ public:
   void run_tagger();
 
   // Return the candidate (and some properties) at R=R_min
-  external::HEPTopTagger cand_Rmin(){return _HEPTopTagger[_Rmin];}
+  HEPTopTagger cand_Rmin(){return _HEPTopTagger[_Rmin];}
   const int & Rmin_raw() const {return _Rmin;}
   const double Rmin() const {return _Rmin/10.;}
   const double & mass_Rmin() const {return _mass_Rmin;}
   const double & pt_Rmin() const {return _pt_Rmin;}
   
+  double R_min_exp(double x) {return _r_min_exp_function(x);}
+
   // Access to all candidates and number-of-small-fatjets
-  external::HEPTopTagger HTTagger(int i)  {return _HEPTopTagger[i];}
+  HEPTopTagger HTTagger(int i)  {return _HEPTopTagger[i];}
   const double n_small_fatjets(int i) {return _n_small_fatjets[i];}
 
   void set_mode(int mode) {_mode = mode;}
@@ -55,6 +57,7 @@ public:
   void set_nfilt(unsigned nfilt) {_n_filt = nfilt;}
   void set_Rfilt(double Rfilt) {_R_filt = Rfilt;}
   void set_debug(bool debug) {_debug = debug;}
+  void set_r_min_exp_function(double (*f)(double)) {_r_min_exp_function = f;}
  
 
 private:
@@ -63,8 +66,8 @@ private:
   double _mtmass, _mwmass;
   double _mass_drop_threshold;
   double _subjet_mass;
-  double _minpt_subjet;
   double _minpt_tag;
+  double _minpt_subjet;
   map<int,external::HEPTopTagger> _HEPTopTagger;
   map<int,int> _n_small_fatjets;
   int _Rmin;
@@ -79,6 +82,7 @@ private:
   double _max_fatjet_R, _min_fatjet_R, _step_R, _multiR_threshold;
   bool _use_dR_max_triplet;
   bool _debug;
+  double (*_r_min_exp_function)(double);
 
   void UnclusterFatjets(const vector<fastjet::PseudoJet> & big_fatjets, vector<fastjet::PseudoJet> & small_fatjets, const ClusterSequence & cs, const double small_radius);
 

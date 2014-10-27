@@ -40,7 +40,9 @@ MultiR_TopTagger::MultiR_TopTagger(double max_fatjet_R,
 				   const fastjet::PseudoJet & jet, 
 				   double mtmass, double mwmass
 				   ) : _cs(&cs),  _jet(&jet),
-				       _mtmass(mtmass),	_mwmass(mwmass), _max_fatjet_R(max_fatjet_R), _min_fatjet_R(min_fatjet_R), _step_R(step_R), _multiR_threshold(multiR_threshold), _use_dR_max_triplet(use_dR_max_triplet), _debug(false)
+				       _mtmass(mtmass),	_mwmass(mwmass), _mass_drop_threshold(0.8), _minpt_tag(200.), _minpt_subjet(0.), _mode(1), 
+				       _max_fatjet_R(max_fatjet_R), _min_fatjet_R(min_fatjet_R), _step_R(step_R), _multiR_threshold(multiR_threshold), 
+				       _use_dR_max_triplet(use_dR_max_triplet), _debug(false)
 {}
 
 void MultiR_TopTagger::run_tagger() {
@@ -119,6 +121,10 @@ void MultiR_TopTagger::run_tagger() {
   // if we did not find Rmin in the loop, pick the last value
   if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() > 0)
     _Rmin = minR;
+
+  //for the case that there is no tag at all (< 3 hard substructures)
+  if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() == 0)
+    _Rmin = maxR;
 
   _mass_Rmin = _HEPTopTagger[_Rmin].top_candidate().m();
   _pt_Rmin = _HEPTopTagger[_Rmin].top_candidate().perp();
