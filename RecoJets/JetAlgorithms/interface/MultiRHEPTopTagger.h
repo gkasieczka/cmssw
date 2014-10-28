@@ -39,6 +39,11 @@ public:
   const double & mass_Rmin() const {return _mass_Rmin;}
   const double & pt_Rmin() const {return _pt_Rmin;}
   
+  // Return pT for usage in determining R_min expected filtered pT of
+  // the initial fatjet, but with different filtering settings then
+  // used for the HTT
+  const double & pt_for_exp() const {return _pt_for_exp;}
+  
   double R_min_exp(double x) {return _r_min_exp_function(x);}
 
   // Access to all candidates and number-of-small-fatjets
@@ -56,6 +61,8 @@ public:
   void set_mass_ratio_cut(double mass_ratios_0, double mass_ratios_1, double mass_ratios_2) {_mass_ratios[0] = mass_ratios_0; _mass_ratios[1] = mass_ratios_1; _mass_ratios[2] = mass_ratios_2;}
   void set_nfilt(unsigned nfilt) {_n_filt = nfilt;}
   void set_Rfilt(double Rfilt) {_R_filt = Rfilt;}
+  void set_nfilt_for_exp_Rmin(unsigned nfilt_exp) {_n_filt_exp = nfilt_exp;}
+  void set_Rfilt_for_exp_Rmin(double Rfilt_exp) {_R_filt_exp = Rfilt_exp;}
   void set_debug(bool debug) {_debug = debug;}
   void set_r_min_exp_function(double (*f)(double)) {_r_min_exp_function = f;}
  
@@ -68,6 +75,7 @@ private:
   double _subjet_mass;
   double _minpt_tag;
   double _minpt_subjet;
+  double _pt_for_exp;
   map<int,external::HEPTopTagger> _HEPTopTagger;
   map<int,int> _n_small_fatjets;
   int _Rmin;
@@ -77,6 +85,8 @@ private:
   double _top_range[2];
   unsigned _n_filt;
   double _R_filt;
+  unsigned _n_filt_exp;
+  double _R_filt_exp;
   double _f_W;
   double _mass_ratios[3];
   double _max_fatjet_R, _min_fatjet_R, _step_R, _multiR_threshold;

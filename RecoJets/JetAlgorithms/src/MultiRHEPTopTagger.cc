@@ -40,7 +40,7 @@ MultiR_TopTagger::MultiR_TopTagger(double max_fatjet_R,
 				   const fastjet::PseudoJet & jet, 
 				   double mtmass, double mwmass
 				   ) : _cs(&cs),  _jet(&jet),
-				       _mtmass(mtmass),	_mwmass(mwmass), _mass_drop_threshold(0.8), _minpt_tag(200.), _minpt_subjet(0.), _mode(1), 
+				       _mtmass(mtmass),	_mwmass(mwmass), _mass_drop_threshold(0.8), _minpt_tag(200.), _minpt_subjet(0.), _mode(1), _n_filt_exp(10), _R_filt_exp(0.2),
 				       _max_fatjet_R(max_fatjet_R), _min_fatjet_R(min_fatjet_R), _step_R(step_R), _multiR_threshold(multiR_threshold), 
 				       _use_dR_max_triplet(use_dR_max_triplet), _debug(false)
 {}
@@ -50,7 +50,15 @@ void MultiR_TopTagger::run_tagger() {
     cout << "============================="  << endl 
 	 << "new MultiR" << endl;
   }
-  
+
+  // Before doing the MultiR procedure:
+  // determine the filtered fatjet pT that can be used for 
+  // fitting R_min_expected 
+  fastjet::Filter filter(JetDefinition(fastjet::cambridge_algorithm, _R_filt_exp), SelectorNHardest(_n_filt_exp));
+  _pt_for_exp = filter.result(*_jet).perp();
+
+   
+  // Do MultiR procedure  
   vector<fastjet::PseudoJet> big_fatjets;
   vector<fastjet::PseudoJet> small_fatjets;
   
@@ -62,7 +70,7 @@ void MultiR_TopTagger::run_tagger() {
   int maxR = int(_max_fatjet_R * 10);
   int minR = int(_min_fatjet_R * 10);
   int stepR = int(_step_R * 10);
-
+    
   for (int R = maxR; R >= minR; R -= stepR) {
     
     // TODO: check!
