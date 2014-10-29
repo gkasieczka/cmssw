@@ -156,8 +156,8 @@
   <class name="edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>" />
 
 
-  <class name="reco::HTTTopJetProperties" ClassVersion="11">
-   <version ClassVersion="11" checksum="1763149559"/>
+  <class name="reco::HTTTopJetProperties" ClassVersion="12">
+   <version ClassVersion="12" checksum="2819521347"/>
   </class>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>"/>
  

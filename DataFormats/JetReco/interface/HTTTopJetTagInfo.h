@@ -30,15 +30,17 @@ public:
     isMultiR	     = 0;
     Rmin	     = 0.;
     RminExpected     = 0.;
+    ptFiltForRminExp = 0.;
   }
-  double              topMass;         //<! Mass of the HTT top quark candidate [GeV] (at R=Rmin for MultiR)
-  double              unfilteredMass;  //<! Unfiltered mass of the triplet [GeV] (at R=Rmin for MultiR)
-  double              prunedMass;      //<! Mass of the pruned fat jet [GeV] (at R=Rmin for MultiR)
-  double              fW;              //<! Minimum distance of m_ij/m_123 from m_W/m_top (at R=Rmin for MultiR)
-  double              massRatioPassed; //<! Did the candidate pass the default mass ratio? Can be used instead of fW (at R=Rmin for MultiR)
-  bool                isMultiR;        //<! Tagger operated in MultiR mode
-  double              Rmin;            //<! R_min found in MultiR procedure. Set to -1 for non-MultiR mode.
-  double              RminExpected;    //<! R_min expected for a top quark based on filtered fat-jet pT. Set to -1 for non-MultiR mode.
+  double              topMass;          //<! Mass of the HTT top quark candidate [GeV] (at R=Rmin for MultiR)
+  double              unfilteredMass;   //<! Unfiltered mass of the triplet [GeV] (at R=Rmin for MultiR)
+  double              prunedMass;       //<! Mass of the pruned fat jet [GeV] (at R=Rmin for MultiR)
+  double              fW;               //<! Minimum distance of m_ij/m_123 from m_W/m_top (at R=Rmin for MultiR)
+  double              massRatioPassed;  //<! Did the candidate pass the default mass ratio? Can be used instead of fW (at R=Rmin for MultiR)
+  bool                isMultiR;         //<! Tagger operated in MultiR mode
+  double              Rmin;             //<! R_min found in MultiR procedure. Set to -1 for non-MultiR mode.
+  double              RminExpected;     //<! R_min expected for a top quark based on filtered fat-jet pT. Set to -1 for non-MultiR mode.
+  double              ptFiltForRminExp; //<! Filtered initial fatjet pT for re-doing Rmin(expected) fit  Set to -1 for non-MultiR mode.
 };
 
  class HTTTopJetTagInfo : public JetTagInfo {
