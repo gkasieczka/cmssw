@@ -107,6 +107,7 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   s->_fW = tagger.cand_Rmin().fW();
   s->_mass_ratio_passed = tagger.cand_Rmin().is_masscut_passed();
   s->_Rmin = tagger.Rmin();
+  s->_ptFiltForRminExp = tagger.pt_for_exp();
   // TODO: Add Rmin(expected)
   
 

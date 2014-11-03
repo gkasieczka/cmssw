@@ -211,15 +211,16 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     if (multiR_){
       fastjet::MultiRHEPTopTaggerStructure *s = (fastjet::MultiRHEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
       
-      properties.topMass         = s->top_mass();
-      properties.unfilteredMass	 = s->unfiltered_mass();
-      properties.prunedMass	 = s->pruned_mass();
-      properties.fW		 = s->fW();
-      properties.massRatioPassed = s->mass_ratio_passed();     
-      properties.isMultiR	 = 1;
-      properties.Rmin	         = s->R_min();    
-      properties.RminExpected    = 999.;
-      
+      properties.topMass          = s->top_mass();
+      properties.unfilteredMass	  = s->unfiltered_mass();
+      properties.prunedMass	  = s->pruned_mass();
+      properties.fW		  = s->fW();
+      properties.massRatioPassed  = s->mass_ratio_passed();     
+      properties.isMultiR	  = 1;
+      properties.Rmin	          = s->R_min();    
+      properties.RminExpected     = 999.;
+      properties.ptFiltForRminExp = s->ptFiltForRminExp();     
+
       tagInfo.insert(rtb, properties );
       tagInfos->push_back( tagInfo );
     }
@@ -233,10 +234,11 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
       properties.massRatioPassed = s->mass_ratio_passed();
       
       // Only needed for MultiR tagger
-      properties.isMultiR	        = 0;
-      properties.Rmin	        = -1.;
+      properties.isMultiR	  = 0;
+      properties.Rmin	          = -1.;
       properties.RminExpected     = -1.;
-      
+      properties.ptFiltForRminExp = -1.;
+
       tagInfo.insert(rtb, properties );
       tagInfos->push_back( tagInfo );
     }
