@@ -66,6 +66,8 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   tagger.set_nfilt(filtN_);
   tagger.set_minpt_subjet(minSubjetPt_);
 
+
+
   // How to select among candidates
   tagger.set_mode(mode_);
   
@@ -107,7 +109,7 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   s->_fW = tagger.cand_Rmin().fW();
   s->_mass_ratio_passed = tagger.cand_Rmin().is_masscut_passed();
   s->_Rmin = tagger.Rmin();
-  s->_ptFiltForRminExp = tagger.pt_for_exp();
+  s->_ptFiltForRminExp = tagger.pt_for_exp(); // CA, R=0.2, n=10 is the current default in the tagger
   // TODO: Add Rmin(expected)
   
 
