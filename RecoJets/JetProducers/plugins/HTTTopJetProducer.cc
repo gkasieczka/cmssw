@@ -211,6 +211,11 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     if (multiR_){
       fastjet::MultiRHEPTopTaggerStructure *s = (fastjet::MultiRHEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
       
+      properties.fjMass           = s->fj_mass();
+      properties.fjPt             = s->fj_pt();
+      properties.fjEta            = s->fj_eta();
+      properties.fjPhi            = s->fj_phi();
+       
       properties.topMass          = s->top_mass();
       properties.unfilteredMass	  = s->unfiltered_mass();
       properties.prunedMass	  = s->pruned_mass();
@@ -226,6 +231,11 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     }
     else{      
       fastjet::HEPTopTaggerStructure *s = (fastjet::HEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
+
+      properties.fjMass           = s->fj_mass();
+      properties.fjPt             = s->fj_pt();
+      properties.fjEta            = s->fj_eta();
+      properties.fjPhi            = s->fj_phi();
       
       properties.topMass         = s->top_mass();
       properties.unfilteredMass	 = s->unfiltered_mass();

@@ -121,6 +121,10 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    /// ctor with pieces initialisation
    HEPTopTaggerStructure(const std::vector<PseudoJet>& pieces_in,
                   const JetDefinition::Recombiner *recombiner = 0) : CompositeJetStructure(pieces_in, recombiner),
+    _fj_mass(0.0),
+    _fj_pt(0.0),
+    _fj_eta(0.0),
+    _fj_phi(0.0),
     _top_mass(0.0),
     _unfiltered_mass(0.0),
     _pruned_mass(0.0),
@@ -155,6 +159,18 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
      return _pieces[2];
    }
  
+   /// return the mass of the initial fatjet
+   inline double fj_mass() const {return _fj_mass;}
+
+   /// return the pt of the initial fatjet
+   inline double fj_pt() const {return _fj_pt;}
+
+   /// return the eta of the initial fatjet
+   inline double fj_eta() const {return _fj_eta;}
+
+   /// return the phi of the initial fatjet
+   inline double fj_phi() const {return _fj_phi;}
+
    /// returns the candidate mass
    inline double top_mass() const {return _top_mass;}
 
@@ -171,6 +187,12 @@ class HEPTopTaggerStructure : public CompositeJetStructure, public TopTaggerBase
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
     
  protected:
+
+      double _fj_mass;
+      double _fj_pt;
+      double _fj_eta;
+      double _fj_phi;
+
       double _top_mass;
       double _unfiltered_mass;
       double _pruned_mass;

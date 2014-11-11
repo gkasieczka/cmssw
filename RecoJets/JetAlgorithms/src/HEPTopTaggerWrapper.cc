@@ -98,6 +98,11 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   PseudoJet result = join<HEPTopTaggerStructure>( W1, W2, non_W, *rec);
   HEPTopTaggerStructure *s = (HEPTopTaggerStructure*) result.structure_non_const_ptr();
 
+  s->_fj_mass  = jet.m();
+  s->_fj_pt    = jet.perp();
+  s->_fj_eta   = jet.eta();
+  s->_fj_phi   = jet.phi();
+
   s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
   s->_unfiltered_mass = tagger.unfiltered_mass();

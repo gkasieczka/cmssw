@@ -22,6 +22,10 @@ namespace reco {
 class HTTTopJetProperties {
 public:
   HTTTopJetProperties() {
+    fjPt             = 0.;
+    fjMass           = 0.;
+    fjEta            = 0.;
+    fjPhi            = 0.;
     topMass          = 0.;
     unfilteredMass   = 0.;
     prunedMass	     = 0.;
@@ -32,6 +36,10 @@ public:
     RminExpected     = 0.;
     ptFiltForRminExp = 0.;
   }
+  double              fjPt;             //<! Mass of the inital Fatjet passed to the TT
+  double              fjMass;           //<! Mass of the inital Fatjet passed to the TT
+  double              fjEta;            //<! Mass of the inital Fatjet passed to the TT
+  double              fjPhi;            //<! Mass of the inital Fatjet passed to the TT
   double              topMass;          //<! Mass of the HTT top quark candidate [GeV] (at R=Rmin for MultiR)
   double              unfilteredMass;   //<! Unfiltered mass of the triplet [GeV] (at R=Rmin for MultiR)
   double              prunedMass;       //<! Mass of the pruned fat jet [GeV] (at R=Rmin for MultiR)

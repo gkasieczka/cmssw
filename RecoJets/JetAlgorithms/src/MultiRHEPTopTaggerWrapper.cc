@@ -103,6 +103,11 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   PseudoJet result = join<MultiRHEPTopTaggerStructure>( W1, W2, non_W, *rec);
   MultiRHEPTopTaggerStructure *s = (MultiRHEPTopTaggerStructure*) result.structure_non_const_ptr();
 
+  s->_fj_mass  = jet.m();
+  s->_fj_pt    = jet.perp();
+  s->_fj_eta   = jet.eta();
+  s->_fj_phi   = jet.phi();
+
   s->_top_mass = tagger.cand_Rmin().t().m();
   s->_pruned_mass = tagger.cand_Rmin().pruned_mass();
   s->_unfiltered_mass = tagger.cand_Rmin().unfiltered_mass();
