@@ -205,12 +205,9 @@ protected:
   unsigned int                    minSeed_;              // minimum seed to use, useful for MC generation
 
   int                   verbosity_;                 // flag to enable/disable debug output
-
   bool                  fromHTTTopJetProducer_;   // for running the v2.0 HEPTopTagger
 
-
- private:
-
+private:
   std::auto_ptr<AnomalousTower>   anomalousTowerDef_;  // anomalous tower definition
 
   // tokens for the data access
