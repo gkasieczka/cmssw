@@ -34,6 +34,23 @@ using namespace std;
 
 FASTJET_BEGIN_NAMESPACE
 
+
+// Expected R_min for tops (as function of filtered initial fatjet pT in GeV (using CA, R=0.2, n=10)
+// From ttbar sample, matched to hadronically decaying top with delta R < 0.8 and true top pT > 200
+// Cuts are: fW < 0.175 and  m_top = 120..170
+// Input objects are packed pfCandidates (wo/ filtering)
+// IMPORTANT: this might need to be changed when using CHS or very different other cuts
+double R_min_expected_function(double x){
+  if (x<300)
+    return 1.17 + 1.91e-03*x - 6.45e-06*x*x;
+  else if (x<500)
+    return 1.89 - 2.89e-03*x + 1.55e-06*x*x;
+  else
+    return 1.86 - 2.78e-03*x + 1.44e-06*x*x;
+}
+
+
+
 //------------------------------------------------------------------------
 // returns the tagged PseudoJet if successful, 0 otherwise
 //  - jet   the PseudoJet to tag
@@ -66,8 +83,6 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   tagger.set_nfilt(filtN_);
   tagger.set_minpt_subjet(minSubjetPt_);
 
-
-
   // How to select among candidates
   tagger.set_mode(mode_);
   
@@ -76,6 +91,9 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   tagger.set_top_range(minCandMass_, maxCandMass_); 
   tagger.set_mass_ratio_cut(minM23Cut_, minM13Cut_, maxM13Cut_);
   tagger.set_f_W(massRatioWidth_/100.);
+
+  // Set function to calculate R_min_expected
+  tagger.set_r_min_exp_function(R_min_expected_function);
 
   tagger.run_tagger();
   
@@ -115,9 +133,8 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   s->_mass_ratio_passed = tagger.cand_Rmin().is_masscut_passed();
   s->_Rmin = tagger.Rmin();
   s->_ptFiltForRminExp = tagger.pt_for_exp(); // CA, R=0.2, n=10 is the current default in the tagger
-  // TODO: Add Rmin(expected)
+  s->_RminExpected = tagger.R_min_exp();
   
-
   return result;
 }
 

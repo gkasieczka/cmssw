@@ -177,6 +177,9 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
    /// returns Rmin
    inline double R_min() const {return _Rmin;}
 
+   /// returns expected Rmin
+   inline double R_min_expected() const {return _RminExpected;}
+
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
 
@@ -197,6 +200,7 @@ class MultiRHEPTopTaggerStructure : public CompositeJetStructure, public TopTagg
       int _mass_ratio_passed;
       double _ptFiltForRminExp;
       double _Rmin;
+      double _RminExpected;
       
       const JetDefinition::Recombiner  * W_rec;
  

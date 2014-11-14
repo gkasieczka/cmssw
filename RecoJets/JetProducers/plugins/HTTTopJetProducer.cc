@@ -223,7 +223,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
       properties.massRatioPassed  = s->mass_ratio_passed();     
       properties.isMultiR	  = 1;
       properties.Rmin	          = s->R_min();    
-      properties.RminExpected     = 999.;
+      properties.RminExpected     = s->R_min_expected();    
       properties.ptFiltForRminExp = s->ptFiltForRminExp();     
 
       tagInfo.insert(rtb, properties );
