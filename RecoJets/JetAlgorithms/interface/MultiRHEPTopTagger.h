@@ -44,7 +44,7 @@ public:
   // used for the HTT
   const double & pt_for_exp() const {return _pt_for_exp;}
   
-  double R_min_exp(double x) {return _r_min_exp_function(x);}
+  double R_min_exp() {return _r_min_exp_function(_pt_for_exp);}
 
   // Access to all candidates and number-of-small-fatjets
   HEPTopTagger HTTagger(int i)  {return _HEPTopTagger[i];}
