@@ -129,7 +129,12 @@ namespace cms
 
     double maxR_; // maximal fatjet size for MultiR tagger (tagger)
     double minR_; // minimal fatjet size for MultiR tagger (tagger)
-        
+       
+    bool unclustering_pt_;
+    double unclustering_R0_;
+    double unclustering_beta_;
+    double unclustering_zcut_;
+ 
     bool verbose_;
 
   };

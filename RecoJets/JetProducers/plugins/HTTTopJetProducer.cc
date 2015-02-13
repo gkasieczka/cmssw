@@ -28,6 +28,10 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        maxM13Cut_(1.3),
        maxR_(1.5),
        minR_(0.5),
+       unclustering_pt_(false),
+       unclustering_R0_(1.5),
+       unclustering_beta_(0.0),
+       unclustering_zcut_(0.15),
        verbose_(false )
 {
   
@@ -86,7 +90,18 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   if ( conf.exists("minR") )
     minR_ = conf.getParameter<double>("minR");
 
-  
+  if ( conf.exists("unclustering_pt") )
+    unclustering_pt_ = conf.getParameter<bool>("unclustering_pt");
+
+  if ( conf.exists("unclustering_R0") )
+    unclustering_R0_ = conf.getParameter<double>("unclustering_R0");
+
+  if ( conf.exists("unclustering_beta") )
+    unclustering_beta_ = conf.getParameter<double>("unclustering_beta");
+
+  if ( conf.exists("unclustering_zcut") )
+    unclustering_zcut_ = conf.getParameter<double>("unclustering_zcut");
+
   if ( conf.exists("verbose") )
     verbose_ = conf.getParameter<bool>("verbose");
   
@@ -111,7 +126,11 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 												       minM13Cut_, 	    
 												       maxM13Cut_,
 												       maxR_,
-												       minR_)); 
+												       minR_,
+												       unclustering_pt_,
+												       unclustering_beta_,
+												       unclustering_zcut_
+												       )); 
   }
   else{
     fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTagger>(new fastjet::HEPTopTagger(minSubjetPt_, 
@@ -126,7 +145,12 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 										     massRatioWidth_, 	    
 										     minM23Cut_, 	    
 										     minM13Cut_, 	    
-										     maxM13Cut_)); 
+										     maxM13Cut_,
+										     unclustering_pt_,
+										     unclustering_R0_,
+										     unclustering_beta_,
+										     unclustering_zcut_
+										     )); 
   }
 
 }

@@ -44,7 +44,11 @@ public:
 		     double minM13Cut, 
 		     double maxM13Cut,
 		     double R_max,
-		     double R_min) : minSubjetPt_(minSubjetPt),
+		     double R_min,
+		     bool unclustering_pt,
+		     double beta,
+		     double zcut
+		     ) : minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
     muCut_(muCut),
@@ -58,7 +62,10 @@ public:
     minM13Cut_(minM13Cut),
     maxM13Cut_(maxM13Cut),
     R_max_(R_max),
-    R_min_(R_min)
+    R_min_(R_min),
+    unclustering_pt_(unclustering_pt),
+    beta_(beta),
+    zcut_(zcut)
   {}
 
   /// returns a textual description of the tagger
@@ -103,6 +110,11 @@ private:
 
     double R_max_; // Maximal fatjet size to consider
     double R_min_; // Minimal fatjet size to consider
+
+    bool unclustering_pt_;
+    double beta_;
+    double zcut_;
+
 };
 
 

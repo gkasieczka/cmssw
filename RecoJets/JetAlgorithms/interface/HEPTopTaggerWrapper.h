@@ -59,7 +59,11 @@ public:
 	       double massRatioWidth, 
 	       double minM23Cut, 
 	       double minM13Cut, 
-	       double maxM13Cut) : minSubjetPt_(minSubjetPt),
+	       double maxM13Cut,
+	       bool unclustering_pt,
+	       double R0, 
+	       double beta,
+	       double zcut) : minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
     muCut_(muCut),
@@ -71,7 +75,11 @@ public:
     massRatioWidth_(massRatioWidth),
     minM23Cut_(minM23Cut),
     minM13Cut_(minM13Cut),
-    maxM13Cut_(maxM13Cut)   
+    maxM13Cut_(maxM13Cut),
+    unclustering_pt_(unclustering_pt),
+    R0_(R0),
+    beta_(beta),
+    zcut_(zcut)
   {}
 
   /// returns a textual description of the tagger
@@ -113,6 +121,12 @@ private:
     double minM23Cut_; // minimal value of m23/m123
     double minM13Cut_; // minimal value of atan(m13/m12)
     double maxM13Cut_; // maximal value of atan(m13/m12)
+
+    bool unclustering_pt_;
+    double R0_;
+    double beta_;
+    double zcut_;
+
 };
 
 

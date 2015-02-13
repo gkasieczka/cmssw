@@ -83,6 +83,10 @@ PseudoJet MultiRHEPTopTagger::result(const PseudoJet & jet) const{
   tagger.set_nfilt(filtN_);
   tagger.set_minpt_subjet(minSubjetPt_);
 
+  tagger.set_unclustering_pt(unclustering_pt_);
+  tagger.set_unclustering_beta(beta_);
+  tagger.set_unclustering_zcut(zcut_);
+
   // How to select among candidates
   tagger.set_mode(mode_);
   
