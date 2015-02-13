@@ -66,6 +66,9 @@ public:
   void set_debug(bool debug) {_debug = debug;}
   void set_r_min_exp_function(double (*f)(double)) {_r_min_exp_function = f;}
  
+  void set_unclustering_pt(bool x) {_use_unclustering_pt = x;}
+  void set_unclustering_beta(double x) {_beta_sd = x;}
+  void set_unclustering_zcut(double x) {_zcut_sd = x;}
 
 private:
   const ClusterSequence * _cs;
@@ -91,6 +94,11 @@ private:
   double _mass_ratios[3];
   double _max_fatjet_R, _min_fatjet_R, _step_R, _multiR_threshold;
   bool _use_dR_max_triplet;
+
+  double _beta_sd;
+  double _zcut_sd;
+  bool _use_unclustering_pt;
+
   bool _debug;
   double (*_r_min_exp_function)(double);
 

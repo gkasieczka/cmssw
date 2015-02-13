@@ -42,7 +42,8 @@ MultiR_TopTagger::MultiR_TopTagger(double max_fatjet_R,
 				   ) : _cs(&cs),  _jet(&jet),
 				       _mtmass(mtmass),	_mwmass(mwmass), _mass_drop_threshold(0.8), _minpt_tag(200.), _minpt_subjet(0.), _mode(1), _n_filt_exp(10), _R_filt_exp(0.2),
 				       _max_fatjet_R(max_fatjet_R), _min_fatjet_R(min_fatjet_R), _step_R(step_R), _multiR_threshold(multiR_threshold), 
-				       _use_dR_max_triplet(use_dR_max_triplet), _debug(false)
+				       _use_dR_max_triplet(use_dR_max_triplet), 
+                                       _beta_sd(0.), _zcut_sd(0.15), _use_unclustering_pt(false), _debug(false)
 {}
 
 void MultiR_TopTagger::run_tagger() {
@@ -106,6 +107,11 @@ void MultiR_TopTagger::run_tagger() {
       htt.set_mass_ratio_range((1.-_f_W)*_mwmass/_mtmass, (1.+_f_W)*_mwmass/_mtmass); 
       htt.set_mode(_mode); 
       
+      htt.set_unclustering_pt(_use_unclustering_pt);
+      htt.set_unclustering_R0(R/10.);
+      htt.set_unclustering_beta(_beta_sd);
+      htt.set_unclustering_zcut(_zcut_sd);
+
       htt.run_tagger();
      
       if (htt.top_candidate().perp() > dummy) {
