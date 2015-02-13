@@ -89,6 +89,11 @@ public:
   void set_minpt_tag(double x) {_minpt_tag = x;}
   void set_minpt_subjet(double x) {_minpt_subjet = x;}
   
+  void set_unclustering_pt(bool x) {_use_unclustering_pt = x;}
+  void set_unclustering_R0(double x) {_R0_sd = x;}
+  void set_unclustering_beta(double x) {_beta_sd = x;}
+  void set_unclustering_zcut(double x) {_zcut_sd = x;}
+
 private:
   const PseudoJet* _jet;
   double _mtmass, _mwmass;
@@ -100,6 +105,12 @@ private:
   size_t _nfilt;
   double _Rfilt;
   double _Rprun;
+
+  double _R0_sd;
+  double _beta_sd;
+  double _zcut_sd;
+  bool _use_unclustering_pt;
+
   JetAlgorithm _jet_algorithm_filter;
   JetAlgorithm _jet_algorithm_recluster;
   double _zcut;
@@ -129,6 +140,7 @@ private:
 
   //internal functions
   void FindHardSubst(const PseudoJet& jet, std::vector<fastjet::PseudoJet>& t_parts);
+  void FindHardSubstPt(const PseudoJet& jet, std::vector<fastjet::PseudoJet>& t_parts);
   std::vector<PseudoJet> Filtering(const std::vector <PseudoJet> & top_constits, const JetDefinition & filtering_def);
   void store_topsubjets(const std::vector<PseudoJet>& top_subs);
   bool check_mass_criteria(const std::vector<fastjet::PseudoJet> & top_subs) const;

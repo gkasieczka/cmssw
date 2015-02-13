@@ -69,6 +69,26 @@ void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet
   }
 }
 
+
+//Find hard substructures - inspired by SoftDrop
+void HEPTopTagger::FindHardSubstPt(const PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts) {
+  PseudoJet parent1(0, 0, 0, 0), parent2(0, 0, 0, 0);
+
+  // We still stop the procedure according to the mass of the objects
+  if (this_jet.m() < _max_subjet_mass || !this_jet.validated_cs()->has_parents(this_jet, parent1, parent2)) {
+    t_parts.push_back(this_jet);
+  } else {
+    if (parent1.perp() < parent2.perp()) 
+      std::swap(parent1, parent2);   
+
+    double deltaR12 = sqrt(parent1.squared_distance(parent2));
+
+    FindHardSubstPt(parent1, t_parts);
+    if (parent2.perp() > _zcut_sd * pow(deltaR12/_R0_sd, _beta_sd) * (parent1.perp()+parent2.perp()))
+      FindHardSubstPt(parent2, t_parts);   
+  }
+}
+
 //store subjets as vector<PseudoJet> with [0]->b [1]->W-jet 1 [2]->W-jet 2
 void HEPTopTagger::store_topsubjets(const std::vector<PseudoJet>& top_subs) {
   _top_subjets.resize(0);
@@ -131,7 +151,9 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) :
   _mass_drop_threshold(0.8), _max_subjet_mass(30.), 
   _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
-  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
+  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), 
+  _R0_sd(1.5), _beta_sd(0.), _zcut_sd(0.15), _use_unclustering_pt(false),
+  _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
   _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
@@ -142,7 +164,9 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet,
   _mass_drop_threshold(0.8), _max_subjet_mass(30.), 
   _mtmin(150.), _mtmax(200.), _rmin(0.85*mwmass/mtmass), _rmax(1.15*mwmass/mtmass), 
   _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), 
-  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
+  _nfilt(5), _Rfilt(0.3), _Rprun(1.5), 
+  _R0_sd(1.5), _beta_sd(0.), _zcut_sd(0.15), _use_unclustering_pt(false),
+  _jet_algorithm_filter(fastjet::cambridge_algorithm), _jet_algorithm_recluster(fastjet::cambridge_algorithm), _zcut(0.1),
   _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
@@ -172,7 +196,11 @@ void HEPTopTagger::run_tagger() {
   _top_parts.clear();
   
   //find hard substructures
-  FindHardSubst(*_jet, _top_parts);
+  if (_use_unclustering_pt)
+    FindHardSubstPt(*_jet, _top_parts); // pt based
+  else
+    FindHardSubst(*_jet, _top_parts); // mass based
+
   _parts_size = _top_parts.size();
   
   if (_top_parts.size() < 3) { 
