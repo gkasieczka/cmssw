@@ -65,6 +65,7 @@
 #include "RecoJets/JetAlgorithms/interface/CATopJetAlgorithm.h"
 #include "CATopJetProducer.h"
 #include "RecoJets/JetAlgorithms/interface/CMSTopTagger.h"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapper.h"
 
 #include <fastjet/tools/RestFrameNSubjettinessTagger.hh>
 #include "fastjet/SISConePlugin.hh"
@@ -87,6 +88,7 @@ namespace cms
   private:
     std::auto_ptr<CATopJetAlgorithm>        legacyCMSTopTagger_;         /// The algorithm to do the work
     std::auto_ptr<fastjet::CMSTopTagger>     fjCMSTopTagger_;    // The FastJet implementation of the CMS tagger
+    std::auto_ptr<fastjet::HEPTopTagger>     fjHEPTopTagger_;
     std::auto_ptr<fastjet::JHTopTagger>     fjJHUTopTagger_;
     std::auto_ptr<fastjet::RestFrameNSubjettinessTagger>   fjNSUBTagger_;
 
