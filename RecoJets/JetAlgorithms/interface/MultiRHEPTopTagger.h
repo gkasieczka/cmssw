@@ -1,12 +1,12 @@
 //Adapted Version based on the work of Gregor.
 
-#ifndef __MULTIR_TOPTAGGER_HH__
-#define __MULTIR_TOPTAGGER_HH__
+#ifndef __MULTIR_TOPTAGGERV2_HH__
+#define __MULTIR_TOPTAGGERV2_HH__
 
 #include <vector>
 #include <algorithm>  // for swap
 #include <math.h>
-#include "../interface/HEPTopTagger.h"
+#include "../interface/HEPTopTaggerV2.h"
 
 using namespace std;
 using namespace fastjet;
@@ -33,7 +33,7 @@ public:
   void run_tagger();
 
   // Return the candidate (and some properties) at R=R_min
-  HEPTopTagger cand_Rmin(){return _HEPTopTagger[_Rmin];}
+  HEPTopTaggerV2 cand_Rmin(){return _HEPTopTaggerV2[_Rmin];}
   const int & Rmin_raw() const {return _Rmin;}
   const double Rmin() const {return _Rmin/10.;}
   const double & mass_Rmin() const {return _mass_Rmin;}
@@ -47,7 +47,7 @@ public:
   double R_min_exp() {return _r_min_exp_function(_pt_for_exp);}
 
   // Access to all candidates and number-of-small-fatjets
-  HEPTopTagger HTTagger(int i)  {return _HEPTopTagger[i];}
+  HEPTopTaggerV2 HTTagger(int i)  {return _HEPTopTaggerV2[i];}
   const double n_small_fatjets(int i) {return _n_small_fatjets[i];}
 
   void set_mode(int mode) {_mode = mode;}
@@ -76,7 +76,7 @@ private:
   double _minpt_tag;
   double _minpt_subjet;
   double _pt_for_exp;
-  map<int,external::HEPTopTagger> _HEPTopTagger;
+  map<int,external::HEPTopTaggerV2> _HEPTopTaggerV2;
   map<int,int> _n_small_fatjets;
   int _Rmin;
   int _mode;

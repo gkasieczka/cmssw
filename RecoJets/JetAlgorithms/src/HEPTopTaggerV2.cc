@@ -1,17 +1,17 @@
 
-#include "../interface/HEPTopTagger.h"
+#include "../interface/HEPTopTaggerV2.h"
 
 // Do not change next line, it's needed by the sed-code that makes the tagger CMSSW-compatible.
 namespace external {
 
-bool HEPTopTagger::_first_time = true;
+bool HEPTopTaggerV2::_first_time = true;
 
-void HEPTopTagger::print_banner() {
+void HEPTopTaggerV2::print_banner() {
   if (!_first_time) {return;}
   _first_time = false;
 
   std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                   HEPTopTagger - under construction                      \n";
+  std::cout << "#                   HEPTopTaggerV2 - under construction                      \n";
   std::cout << "#                                                                          \n";
   std::cout << "# Please cite JHEP 1010 (2010) 078 [arXiv:1006.2833 [hep-ph]]              \n";
   std::cout << "# and Phys.Rev. D89 (2014) 074047 [arXiv:1312.1504 [hep-ph]]               \n";
@@ -19,7 +19,7 @@ void HEPTopTagger::print_banner() {
   get_setting();
 }
 
-double HEPTopTagger::perp(const PseudoJet & vec, const fastjet::PseudoJet & ref) {
+double HEPTopTaggerV2::perp(const PseudoJet & vec, const fastjet::PseudoJet & ref) {
   double ref_ref = ref.px() * ref.px() + ref.py() * ref.py() + ref.pz() * ref.pz();
   double vec_ref = vec.px() * ref.px() + vec.py() * ref.py() + vec.pz() * ref.pz();
   double per_per = vec.px() * vec.px() + vec.py() * vec.py() + vec.pz() * vec.pz();
@@ -30,7 +30,7 @@ double HEPTopTagger::perp(const PseudoJet & vec, const fastjet::PseudoJet & ref)
   return sqrt(per_per);
 }
 
-double HEPTopTagger::djademod (const fastjet::PseudoJet& subjet_i, const fastjet::PseudoJet& subjet_j, const fastjet::PseudoJet& ref) {
+double HEPTopTaggerV2::djademod (const fastjet::PseudoJet& subjet_i, const fastjet::PseudoJet& subjet_j, const fastjet::PseudoJet& ref) {
   double dj = -1.0;
   double delta_phi = subjet_i.delta_phi_to(subjet_j);
   double delta_eta = subjet_i.eta() - subjet_j.eta();
@@ -39,7 +39,7 @@ double HEPTopTagger::djademod (const fastjet::PseudoJet& subjet_i, const fastjet
   return dj;
 }
 
-double HEPTopTagger::fW() {
+double HEPTopTaggerV2::fW() {
   // Minimal:
   // |(m_ij / m_123) / (m_w/ m_t) - 1|
 
@@ -56,7 +56,7 @@ double HEPTopTagger::fW() {
 }
 
 //Find hard substructures
-void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts) {
+void HEPTopTaggerV2::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet::PseudoJet> & t_parts) {
   PseudoJet parent1(0, 0, 0, 0), parent2(0, 0, 0, 0);
   if (this_jet.m() < _max_subjet_mass || !this_jet.validated_cs()->has_parents(this_jet, parent1, parent2)) {
     t_parts.push_back(this_jet);
@@ -70,7 +70,7 @@ void HEPTopTagger::FindHardSubst(const PseudoJet & this_jet, std::vector<fastjet
 }
 
 //store subjets as vector<PseudoJet> with [0]->b [1]->W-jet 1 [2]->W-jet 2
-void HEPTopTagger::store_topsubjets(const std::vector<PseudoJet>& top_subs) {
+void HEPTopTaggerV2::store_topsubjets(const std::vector<PseudoJet>& top_subs) {
   _top_subjets.resize(0);
   double m12 = (top_subs[0] + top_subs[1]).m();
   double m13 = (top_subs[0] + top_subs[2]).m();
@@ -97,7 +97,7 @@ void HEPTopTagger::store_topsubjets(const std::vector<PseudoJet>& top_subs) {
 }
 
 //check mass plane cuts
-bool HEPTopTagger::check_mass_criteria(const std::vector<PseudoJet> & top_subs) const {
+bool HEPTopTaggerV2::check_mass_criteria(const std::vector<PseudoJet> & top_subs) const {
   bool is_passed = false;
   double m12 = (top_subs[0] + top_subs[1]).m();
   double m13 = (top_subs[0] + top_subs[2]).m();
@@ -124,9 +124,9 @@ bool HEPTopTagger::check_mass_criteria(const std::vector<PseudoJet> & top_subs) 
   return is_passed;
 }
 
-HEPTopTagger::HEPTopTagger() {}
+HEPTopTaggerV2::HEPTopTaggerV2() {}
 
-HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) : 
+HEPTopTaggerV2::HEPTopTaggerV2(fastjet::PseudoJet jet) : 
   _jet(&jet), _mtmass(172.3), _mwmass(80.4), 
   _mass_drop_threshold(0.8), _max_subjet_mass(30.), 
   _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3), 
@@ -135,7 +135,7 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet) :
   _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
-HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet, 
+HEPTopTaggerV2::HEPTopTaggerV2(fastjet::PseudoJet jet, 
 			   double mtmass, double mwmass
 			   ) : 
   _jet(&jet), _mtmass(mtmass), _mwmass(mwmass), 
@@ -146,7 +146,7 @@ HEPTopTagger::HEPTopTagger(fastjet::PseudoJet jet,
   _rcut_factor(0.5), _mode(Mode(0)), _minpt_tag(200.), _minpt_subjet(0.), _debug(false), _fat(jet)
 {}
 
-void HEPTopTagger::run_tagger() {
+void HEPTopTaggerV2::run_tagger() {
   print_banner();
 
   if ((_mode != EARLY_MASSRATIO_SORT_MASS) 
@@ -297,9 +297,9 @@ void HEPTopTagger::run_tagger() {
   return;
 }
 
-void HEPTopTagger::get_info() const {  
+void HEPTopTaggerV2::get_info() const {  
   std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                          HEPTopTagger Result" << std::endl;
+  std::cout << "#                          HEPTopTaggerV2 Result" << std::endl;
   std::cout << "#" << std::endl;
   std::cout << "# is top candidate: " << _is_maybe_top << std::endl;
   std::cout << "# mass plane cuts passed: " << _is_masscut_passed << std::endl;
@@ -317,9 +317,9 @@ void HEPTopTagger::get_info() const {
   return;
 }
 
-void HEPTopTagger::get_setting() const {
+void HEPTopTaggerV2::get_setting() const {
   std::cout << "#--------------------------------------------------------------------------\n";
-  std::cout << "#                         HEPTopTagger Settings" << std::endl;
+  std::cout << "#                         HEPTopTaggerV2 Settings" << std::endl;
   std::cout << "#" << std::endl;
   std::cout << "# mode: " << _mode << " (0 = EARLY_MASSRATIO_SORT_MASS) " << std::endl;
   std::cout << "#        "         << " (1 = LATE_MASSRATIO_SORT_MASS)  " << std::endl;

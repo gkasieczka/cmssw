@@ -94,7 +94,7 @@ void MultiR_TopTagger::run_tagger() {
     double dummy = -99999;
 
     for (unsigned i = 0; i < small_fatjets.size(); i++) {
-      external::HEPTopTagger htt(small_fatjets[i], _mtmass, _mwmass);
+      external::HEPTopTaggerV2 htt(small_fatjets[i], _mtmass, _mwmass);
       htt.set_top_range(_top_range[0], _top_range[1]);
       htt.set_mass_ratio_cut(_mass_ratios[0], _mass_ratios[1], _mass_ratios[2]);
       htt.set_max_subjet_mass(_subjet_mass);
@@ -110,14 +110,14 @@ void MultiR_TopTagger::run_tagger() {
      
       if (htt.top_candidate().perp() > dummy) {
 	dummy = htt.top_candidate().perp();
-	_HEPTopTagger[R] = htt;
+	_HEPTopTaggerV2[R] = htt;
       }
     } //End of loop over small_fatjets
     
     // Only check if we have not found Rmin yet
     if (_Rmin == 0 && R < maxR) {                 
       // If the new mass is OUTSIDE the window ..
-      if (_HEPTopTagger[R].top_candidate().m() < (1-_multiR_threshold)*_HEPTopTagger[maxR].top_candidate().m())
+      if (_HEPTopTaggerV2[R].top_candidate().m() < (1-_multiR_threshold)*_HEPTopTaggerV2[maxR].top_candidate().m())
 	// .. set _Rmin to the previous mass 
 	_Rmin = R + stepR;
     }
@@ -127,15 +127,15 @@ void MultiR_TopTagger::run_tagger() {
   }//End of loop over R
 
   // if we did not find Rmin in the loop, pick the last value
-  if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() > 0)
+  if (_Rmin == 0 && _HEPTopTaggerV2[maxR].top_candidate().m() > 0)
     _Rmin = minR;
 
   //for the case that there is no tag at all (< 3 hard substructures)
-  if (_Rmin == 0 && _HEPTopTagger[maxR].top_candidate().m() == 0)
+  if (_Rmin == 0 && _HEPTopTaggerV2[maxR].top_candidate().m() == 0)
     _Rmin = maxR;
 
-  _mass_Rmin = _HEPTopTagger[_Rmin].top_candidate().m();
-  _pt_Rmin = _HEPTopTagger[_Rmin].top_candidate().perp();
+  _mass_Rmin = _HEPTopTaggerV2[_Rmin].top_candidate().m();
+  _pt_Rmin = _HEPTopTaggerV2[_Rmin].top_candidate().perp();
  
   if (_debug) {cout << "MultiR done" << endl;}
 }

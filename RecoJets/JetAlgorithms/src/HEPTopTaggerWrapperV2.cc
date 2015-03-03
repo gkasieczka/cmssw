@@ -17,27 +17,30 @@
 //      59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //----------------------------------------------------------------------
 
-#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapper.h"
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
 
 #include <fastjet/Error.hh>
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/ClusterSequence.hh>
+#include "fastjet/PseudoJet.hh"
+#include "fastjet/tools/Pruner.hh"
+#include "fastjet/tools/Filter.hh"
 
+#include <math.h>
 #include <limits>
 #include <cassert>
 using namespace std;
 
-// namespace hack so that this tagger can have the same name as the core code
-namespace external {
-#include "RecoJets/JetAlgorithms/interface/HEPTopTagger.h"
-}
+#include "RecoJets/JetAlgorithms/interface/HEPTopTaggerV2.h"
+
 
 FASTJET_BEGIN_NAMESPACE
 
 //------------------------------------------------------------------------
 // returns the tagged PseudoJet if successful, 0 otherwise
 //  - jet   the PseudoJet to tag
-PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
+PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
+
   // make sure that there is a "regular" cluster sequence associated
   // with the jet. Note that we also check it is valid (to avoid a
   // more criptic error later on)
@@ -45,18 +48,39 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
     throw Error("HEPTopTagger can only be applied on jets having an associated (and valid) ClusterSequence");
   }
 
-  external::HEPTopTagger tagger(*jet.associated_cluster_sequence(), jet);
-  tagger.set_top_range(0.0, 10000.0); // don't do top mass cut; this can be applied later
-  tagger.set_mass_drop_threshold(_mass_drop_threshold);
-  tagger.set_max_subjet_mass(_max_subjet_mass);
+  external::HEPTopTaggerV2 tagger(jet);
+
+  // translate the massRatioWidth (which should be the half-width given in %) 
+  // to values useful for the A-shape cuts
+  double mw_over_mt = 80.4/172.3;
+  double ratio_min = mw_over_mt * (100.-massRatioWidth_)/100.;
+  double ratio_max = mw_over_mt * (100.+massRatioWidth_)/100.;
+ 
+  
+  // Unclustering, Filtering & Subjet Settings
+  tagger.set_max_subjet_mass(subjetMass_);
+  tagger.set_mass_drop_threshold(muCut_);
+  tagger.set_Rfilt(filtR_);
+  tagger.set_nfilt(filtN_);
+  tagger.set_minpt_subjet(minSubjetPt_); 
+
+  // How to select among candidates
+  tagger.set_mode(mode_);
+  
+  // Requirements to accept a candidate
+  tagger.set_minpt_tag(minCandPt_); 
+  tagger.set_top_range(minCandMass_, maxCandMass_); 
+  tagger.set_mass_ratio_cut(minM23Cut_, minM13Cut_, maxM13Cut_);
+  tagger.set_mass_ratio_range(ratio_min, ratio_max);
 
   tagger.run_tagger();
-  
-  // check that we passed the tagger; if not return a blank PseudoJet
-  if (_use_subjet_mass_cuts) {
-    if (!tagger.is_masscut_passed()) // encompasses is_maybe_top() plus subjet mass cuts
-      return PseudoJet();
-  } else if (!tagger.is_maybe_top())
+
+  // Requires:
+  //   - top mass window
+  //   - mass ratio cuts
+  //   - minimal candidate pT
+  // If this is not intended: use loose top mass and ratio windows
+  if (!tagger.is_tagged())
     return PseudoJet();
   
   // create the result and its structure
@@ -71,24 +95,22 @@ PseudoJet HEPTopTagger::result(const PseudoJet & jet) const{
   PseudoJet W2 = subjets[2];
   PseudoJet W = join(subjets[1], subjets[2], *rec);
 
+  PseudoJet result = join<HEPTopTaggerV2Structure>( W1, W2, non_W, *rec);
+  HEPTopTaggerV2Structure *s = (HEPTopTaggerV2Structure*) result.structure_non_const_ptr();
 
-  PseudoJet result = join<HEPTopTaggerStructure>( W1, W2, non_W, *rec);
-  //HEPTopTaggerStructure *s = (HEPTopTaggerStructure*) result.structure_non_const_ptr();
-//  s->_cos_theta_w = _cos_theta_W(result);
+  s->_fj_mass  = jet.m();
+  s->_fj_pt    = jet.perp();
+  s->_fj_eta   = jet.eta();
+  s->_fj_phi   = jet.phi();
 
-  // Check selectors to see if identified top, W pass and cuts
-  //
-  // Note that we could perhaps ensure this cut before constructing
-  // the result structure but this has the advantage that the top
-  // 4-vector is already available and does not have to de re-computed
-  if (! _top_selector.pass(result) || ! _W_selector.pass(W)) {
-    result *= 0.0;
-  }
+  s->_top_mass = tagger.t().m();
+  s->_pruned_mass = tagger.pruned_mass();
+  s->_unfiltered_mass = tagger.unfiltered_mass();
+  s->_fW = tagger.fW();
+  s->_mass_ratio_passed = tagger.is_masscut_passed();
 
+  // Removed selectors as all cuts are applied ion HTT
   return result;
 }
-
-
-
 
 FASTJET_END_NAMESPACE
