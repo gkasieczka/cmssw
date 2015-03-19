@@ -64,7 +64,6 @@
 #include "RecoJets/JetProducers/plugins/FastjetJetProducer.h"
 
 #include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
-#include "RecoJets/JetAlgorithms/interface/MultiRHEPTopTaggerWrapper.h"
 
 #include "fastjet/SISConePlugin.hh"
 
@@ -90,7 +89,6 @@ namespace cms
 
   private:
     std::auto_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;
-    std::auto_ptr<fastjet::MultiRHEPTopTagger>  fjMultiRHEPTopTagger_;
 
     // Below are all configurable options. 
     // Parenthesis indicates if this is enforced by the tagger itself or by the producer

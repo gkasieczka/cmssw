@@ -96,24 +96,24 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   // Signal to the VirtualJetProducer that we have to add HTT information
   fromHTTTopJetProducer_ = 1;
 
-  if (multiR_){
-    fjMultiRHEPTopTagger_ = std::auto_ptr<fastjet::MultiRHEPTopTagger>(new fastjet::MultiRHEPTopTagger(minSubjetPt_, 
-												       minCandPt_,
-												       subjetMass_, 	    
-												       muCut_, 	
-												       filtR_,
-												       filtN_,
-												       mode_, 		    
-												       minCandMass_, 	    
-												       maxCandMass_, 	    
-												       massRatioWidth_, 	    
-												       minM23Cut_, 	    
-												       minM13Cut_, 	    
-												       maxM13Cut_,
-												       maxR_,
-												       minR_)); 
-  }
-  else{
+//  if (multiR_){
+//    fjMultiRHEPTopTagger_ = std::auto_ptr<fastjet::MultiRHEPTopTagger>(new fastjet::MultiRHEPTopTagger(minSubjetPt_, 
+//												       minCandPt_,
+//												       subjetMass_, 	    
+//												       muCut_, 	
+//												       filtR_,
+//												       filtN_,
+//												       mode_, 		    
+//												       minCandMass_, 	    
+//												       maxCandMass_, 	    
+//												       massRatioWidth_, 	    
+//												       minM23Cut_, 	    
+//												       minM13Cut_, 	    
+//												       maxM13Cut_,
+//												       maxR_,
+//												       minR_)); 
+//  }
+//  else{
     fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTaggerV2>(new fastjet::HEPTopTaggerV2(minSubjetPt_, 
 										     minCandPt_,
 										     subjetMass_, 	    
@@ -127,7 +127,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 										     minM23Cut_, 	    
 										     minM13Cut_, 	    
 										     maxM13Cut_)); 
-  }
+    //}
 
 }
 
@@ -165,7 +165,7 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
   }
 
   fastjet::HEPTopTaggerV2 & HEPTagger = *fjHEPTopTagger_;
-  fastjet::MultiRHEPTopTagger & MultiRHEPTagger = *fjMultiRHEPTopTagger_;
+  //fastjet::MultiRHEPTopTagger & MultiRHEPTagger = *fjMultiRHEPTopTagger_;
 
   vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
   if ( verbose_ )cout<<"Loop over jets"<<endl;
@@ -175,10 +175,10 @@ void HTTTopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup&
     
     fastjet::PseudoJet taggedJet;
 
-    if (multiR_)
-      taggedJet = MultiRHEPTagger.result(*jetIt);
-    else
-      taggedJet = HEPTagger.result(*jetIt);
+    //if (multiR_)
+    //  taggedJet = MultiRHEPTagger.result(*jetIt);
+    //else
+    taggedJet = HEPTagger.result(*jetIt);
 
     if (taggedJet != 0){
       fjJets_.push_back(taggedJet);           
@@ -208,28 +208,28 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);  
     edm::RefToBase<reco::Jet> rtb(ref);  
     
-    if (multiR_){
-      fastjet::MultiRHEPTopTaggerStructure *s = (fastjet::MultiRHEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
-      
-      properties.fjMass           = s->fj_mass();
-      properties.fjPt             = s->fj_pt();
-      properties.fjEta            = s->fj_eta();
-      properties.fjPhi            = s->fj_phi();
-       
-      properties.topMass          = s->top_mass();
-      properties.unfilteredMass	  = s->unfiltered_mass();
-      properties.prunedMass	  = s->pruned_mass();
-      properties.fW		  = s->fW();
-      properties.massRatioPassed  = s->mass_ratio_passed();     
-      properties.isMultiR	  = 1;
-      properties.Rmin	          = s->R_min();    
-      properties.RminExpected     = s->R_min_expected();    
-      properties.ptFiltForRminExp = s->ptFiltForRminExp();     
-
-      tagInfo.insert(rtb, properties );
-      tagInfos->push_back( tagInfo );
-    }
-    else{      
+//    if (multiR_){
+//      fastjet::MultiRHEPTopTaggerStructure *s = (fastjet::MultiRHEPTopTaggerStructure*) fjJets_[ij].structure_non_const_ptr();
+//      
+//      properties.fjMass           = s->fj_mass();
+//      properties.fjPt             = s->fj_pt();
+//      properties.fjEta            = s->fj_eta();
+//      properties.fjPhi            = s->fj_phi();
+//       
+//      properties.topMass          = s->top_mass();
+//      properties.unfilteredMass	  = s->unfiltered_mass();
+//      properties.prunedMass	  = s->pruned_mass();
+//      properties.fW		  = s->fW();
+//      properties.massRatioPassed  = s->mass_ratio_passed();     
+//      properties.isMultiR	  = 1;
+//      properties.Rmin	          = s->R_min();    
+//      properties.RminExpected     = s->R_min_expected();    
+//      properties.ptFiltForRminExp = s->ptFiltForRminExp();     
+//
+//      tagInfo.insert(rtb, properties );
+//      tagInfos->push_back( tagInfo );
+//    }
+//    else{      
       fastjet::HEPTopTaggerV2Structure *s = (fastjet::HEPTopTaggerV2Structure*) fjJets_[ij].structure_non_const_ptr();
 
       properties.fjMass           = s->fj_mass();
@@ -251,8 +251,8 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
 
       tagInfo.insert(rtb, properties );
       tagInfos->push_back( tagInfo );
-    }
-  }  
+      //    }
+  }
 
   iEvent.put( tagInfos );
   

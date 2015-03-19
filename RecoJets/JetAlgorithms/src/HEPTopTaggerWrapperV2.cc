@@ -60,20 +60,20 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   // Unclustering, Filtering & Subjet Settings
   tagger.set_max_subjet_mass(subjetMass_);
   tagger.set_mass_drop_threshold(muCut_);
-  tagger.set_Rfilt(filtR_);
-  tagger.set_nfilt(filtN_);
-  tagger.set_minpt_subjet(minSubjetPt_); 
+  tagger.set_filtering_R(filtR_);
+  tagger.set_filtering_n(filtN_);
+  tagger.set_filtering_minpt_subjet(minSubjetPt_); 
 
   // How to select among candidates
-  tagger.set_mode(mode_);
+  tagger.set_mode((external::Mode)mode_);
   
   // Requirements to accept a candidate
-  tagger.set_minpt_tag(minCandPt_); 
-  tagger.set_top_range(minCandMass_, maxCandMass_); 
+  tagger.set_top_minpt(minCandPt_); 
+  tagger.set_top_mass_range(minCandMass_, maxCandMass_); 
   tagger.set_mass_ratio_cut(minM23Cut_, minM13Cut_, maxM13Cut_);
   tagger.set_mass_ratio_range(ratio_min, ratio_max);
 
-  tagger.run_tagger();
+  tagger.run();
 
   // Requires:
   //   - top mass window
@@ -106,7 +106,7 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
   s->_unfiltered_mass = tagger.unfiltered_mass();
-  s->_fW = tagger.fW();
+  s->_fW = tagger.fw();
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
   // Removed selectors as all cuts are applied ion HTT
