@@ -55,7 +55,6 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   double mw_over_mt = 80.4/172.3;
   double ratio_min = mw_over_mt * (100.-massRatioWidth_)/100.;
   double ratio_max = mw_over_mt * (100.+massRatioWidth_)/100.;
- 
   
   // Unclustering, Filtering & Subjet Settings
   tagger.set_max_subjet_mass(subjetMass_);
@@ -63,6 +62,9 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   tagger.set_filtering_R(filtR_);
   tagger.set_filtering_n(filtN_);
   tagger.set_filtering_minpt_subjet(minSubjetPt_); 
+
+  // Optimal R
+  tagger.do_optimalR(optimalR_);
 
   // How to select among candidates
   tagger.set_mode((external::Mode)mode_);

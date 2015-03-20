@@ -47,19 +47,21 @@ class HEPTopTaggerV2Structure;
 
 class HEPTopTaggerV2 : public TopTaggerBase {
 public:
-  HEPTopTaggerV2(double minSubjetPt, 
-	       double minCandPt, 
-	       double subjetMass, 
-	       double muCut, 
-	       double filtR,
-	       int filtN,
-	       int mode, 
-	       double minCandMass, 
-	       double maxCandMass, 
-	       double massRatioWidth, 
-	       double minM23Cut, 
-	       double minM13Cut, 
-	       double maxM13Cut) : minSubjetPt_(minSubjetPt),
+ HEPTopTaggerV2(bool optimalR,
+		double minSubjetPt, 
+		double minCandPt, 
+		double subjetMass, 
+		double muCut, 
+		double filtR,
+		int filtN,
+		int mode, 
+		double minCandMass, 
+		double maxCandMass, 
+		double massRatioWidth, 
+		double minM23Cut, 
+		double minM13Cut, 
+		double maxM13Cut) : optimalR_(optimalR),
+    minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
     muCut_(muCut),
@@ -87,6 +89,8 @@ public:
   typedef HEPTopTaggerV2Structure StructureType;
 
 private:
+    bool optimalR_; // Use optimalR mode
+
     double minSubjetPt_; // Minimal pT for subjets [GeV]
     double minCandPt_;   // Minimal pT to return a candidate [GeV]
  
