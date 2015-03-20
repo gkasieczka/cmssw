@@ -188,14 +188,14 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
 
-   /// returns Rmin
-   inline double R_min() const {return _Rmin;}
+   /// returns Ropt
+   inline double Ropt() const {return _Rmin;}
 
    /// returns expected Rmin
-   inline double R_min_expected() const {return _RminExpected;}
+   inline double Ropt_calc() const {return _RminExpected;}
 
-   /// returns the filtered pT for fitting R_min expected
-   inline double ptFiltForRminExp() const {return _ptFiltForRminExp;}
+   /// returns the filtered pT for calculating expected R_opt
+   inline double () pt_for_Ropt_calc() const {return _ptFiltForRminExp;}
 
     
  protected:

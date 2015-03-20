@@ -93,7 +93,7 @@ namespace cms
     // Below are all configurable options. 
     // Parenthesis indicates if this is enforced by the tagger itself or by the producer
 
-    bool multiR_; // Should the MultiR version of the tagger be used? (producer)
+    bool optimalR_; // Should the MultiR version of the tagger be used? (producer)
 
     double minFatjetPt_; // Only process fatjets larger pT with the tagger [GeV] (producer)
     double minSubjetPt_; // Minimal pT for subjets [GeV] (tagger)
