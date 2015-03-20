@@ -106,7 +106,7 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
   s->_unfiltered_mass = tagger.unfiltered_mass();
-  s->_fW = tagger.fw();
+  s->_fW = tagger.f_rec();
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
   // Removed selectors as all cuts are applied ion HTT

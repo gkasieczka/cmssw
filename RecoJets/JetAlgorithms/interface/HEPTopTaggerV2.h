@@ -197,7 +197,6 @@ public:
   double djsum() const {return _HEPTopTaggerV2_opt.djsum();}
   double pruned_mass() const {return _HEPTopTaggerV2_opt.pruned_mass();}
   double unfiltered_mass() const {return _HEPTopTaggerV2_opt.unfiltered_mass();}
-  double fw() const {return -1;} // TODO: Not filled yet!!!!!
 
   double f_rec() {return _HEPTopTaggerV2_opt.f_rec();}
   const PseudoJet & t() const {return _HEPTopTaggerV2_opt.t();}
