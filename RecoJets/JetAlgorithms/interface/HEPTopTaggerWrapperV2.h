@@ -195,7 +195,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    inline double Ropt_calc() const {return _RminExpected;}
 
    /// returns the filtered pT for calculating expected R_opt
-   inline double () pt_for_Ropt_calc() const {return _ptFiltForRminExp;}
+   inline double pt_for_Ropt_calc() const {return _ptFiltForRminExp;}
 
     
  protected:
