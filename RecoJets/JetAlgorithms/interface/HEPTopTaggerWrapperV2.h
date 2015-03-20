@@ -117,6 +117,7 @@ private:
 
 
 class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBaseStructure {
+
  public:
    /// ctor with pieces initialisation
    HEPTopTaggerV2Structure(const std::vector<PseudoJet>& pieces_in,
@@ -130,6 +131,7 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
     _pruned_mass(0.0),
     _fW(-1.),
     _mass_ratio_passed(-1),
+    _ptFiltForRminExp(-1),
     W_rec(recombiner), 
     rW_(){}
   
@@ -185,6 +187,16 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
 
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
+
+   /// returns Rmin
+   inline double R_min() const {return _Rmin;}
+
+   /// returns expected Rmin
+   inline double R_min_expected() const {return _RminExpected;}
+
+   /// returns the filtered pT for fitting R_min expected
+   inline double ptFiltForRminExp() const {return _ptFiltForRminExp;}
+
     
  protected:
 
@@ -198,6 +210,9 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
       double _pruned_mass;
       double _fW;
       int _mass_ratio_passed;
+      double _ptFiltForRminExp;
+      double _Rmin;
+      double _RminExpected;
 
       const JetDefinition::Recombiner  * W_rec;
  

@@ -217,6 +217,7 @@ public:
   
   double Ropt() const {return _Ropt/10.;}
   double Ropt_calc() const {return _R_opt_calc;}
+  double pt_for_Ropt_calc() const {return _pt_for_R_opt_calc;}
 
   int optimalR_type();
   double nsub_unfiltered(int order, fastjet::contrib::Njettiness::AxesMode axes = fastjet::contrib::Njettiness::kt_axes, double beta = 1., double R0 = 1.);
@@ -308,7 +309,7 @@ private:
   double  _R_filt_optimalR_calc, _N_filt_optimalR_calc;
   double (*_r_min_exp_function)(double);
   
-  double _optimalR_mmin, _optimalR_mmax, _optimalR_fw, _R_opt_calc, _R_opt_diff;
+  double _optimalR_mmin, _optimalR_mmax, _optimalR_fw, _R_opt_calc, _pt_for_R_opt_calc, _R_opt_diff;
   double _R_filt_optimalR_pass, _N_filt_optimalR_pass, _R_filt_optimalR_fail, _N_filt_optimalR_fail;
 
   double _q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr;

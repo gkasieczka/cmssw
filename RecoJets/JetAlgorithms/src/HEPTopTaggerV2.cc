@@ -604,7 +604,8 @@ void HEPTopTaggerV2::run() {
   
     Filter filter_optimalR_calc(_R_filt_optimalR_calc, SelectorNHardest(_N_filt_optimalR_calc));
     _R_opt_calc = _r_min_exp_function(filter_optimalR_calc(_fat).pt());
-  
+    _pt_for_R_opt_calc = filter_optimalR_calc(_fat).pt();
+
     Filter filter_optimalR_pass(_R_filt_optimalR_pass, SelectorNHardest(_N_filt_optimalR_pass));
     Filter filter_optimalR_fail(_R_filt_optimalR_fail, SelectorNHardest(_N_filt_optimalR_fail));
     if(optimalR_type() == 1) {
