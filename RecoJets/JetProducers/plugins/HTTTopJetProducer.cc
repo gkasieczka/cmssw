@@ -118,7 +118,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 										       massRatioWidth_, 	    
 										       minM23Cut_, 	    
 										       minM13Cut_, 	    
-										       maxM13Cut_)); 
+										       maxM13Cut_,
+										       rejectMinR_
+										       )); 
   
 }
 
