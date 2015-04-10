@@ -88,6 +88,7 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
 
   // Optimal R
   tagger.do_optimalR(DoOptimalR_);
+  tagger.set_optimalR_reject_minimum(optRrejectMin_);
 
   // How to select among candidates
   tagger.set_mode((external::Mode)mode_);

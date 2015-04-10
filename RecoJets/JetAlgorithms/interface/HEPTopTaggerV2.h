@@ -268,6 +268,8 @@ public:
   void set_optimalR_type_fw(double x) {_optimalR_fw = x;}
   void set_optimalR_type_max_diff(double x) {_R_opt_diff = x;}
   
+  void set_optimalR_reject_minimum(bool x) {_R_opt_reject_min = x;}
+
   void set_filtering_optimalR_pass_R(double x) {_R_filt_optimalR_pass = x;}
   void set_filtering_optimalR_pass_n(unsigned x) {_N_filt_optimalR_pass = x;}
   void set_filtering_optimalR_fail_R(double x) {_R_filt_optimalR_fail = x;}
@@ -316,6 +318,7 @@ private:
   double (*_r_min_exp_function)(double);
   
   double _optimalR_mmin, _optimalR_mmax, _optimalR_fw, _R_opt_calc, _pt_for_R_opt_calc, _R_opt_diff;
+  bool _R_opt_reject_min;
   double _R_filt_optimalR_pass, _N_filt_optimalR_pass, _R_filt_optimalR_fail, _N_filt_optimalR_fail;
 
   double _q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr;

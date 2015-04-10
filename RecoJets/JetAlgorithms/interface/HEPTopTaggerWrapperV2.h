@@ -62,7 +62,8 @@ public:
 		double massRatioWidth, 
 		double minM23Cut, 
 		double minM13Cut, 
-		double maxM13Cut) : DoOptimalR_(DoOptimalR),
+		double maxM13Cut,
+		bool optRrejectMin) : DoOptimalR_(DoOptimalR),
     DoQjets_(DoQjets),
     minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
@@ -77,6 +78,7 @@ public:
     minM23Cut_(minM23Cut),
     minM13Cut_(minM13Cut),
     maxM13Cut_(maxM13Cut),
+    optRrejectMin_(optRrejectMin),
     engine_(0)
   {}
 
@@ -125,6 +127,9 @@ private:
     double minM13Cut_; // minimal value of atan(m13/m12)
     double maxM13Cut_; // maximal value of atan(m13/m12)
   
+    bool optRrejectMin_; // set Ropt to zero for candidates that never leave the window around the initial mass
+                         // otherwise (default) set them to R=0.5
+
     // Random engine for Q-jet HTT
     CLHEP::HepRandomEngine* engine_;
 };

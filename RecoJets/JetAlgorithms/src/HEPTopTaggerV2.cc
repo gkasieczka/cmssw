@@ -437,7 +437,7 @@ HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
 			       _zcut(0.1), _rcut_factor(0.5),
 			       _max_fatjet_R(1.8), _min_fatjet_R(0.5), _step_R(0.1), _optimalR_threshold(0.2),
 			       _R_filt_optimalR_calc(0.2), _N_filt_optimalR_calc(10), _r_min_exp_function(&R_opt_calc_funct),
-			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
+                               _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
 			       _debug(false)
@@ -454,7 +454,7 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet
 			       _zcut(0.1), _rcut_factor(0.5),
 			       _max_fatjet_R(jet.validated_cluster_sequence()->jet_def().R()), _min_fatjet_R(0.5), _step_R(0.1), _optimalR_threshold(0.2),
 			       _R_filt_optimalR_calc(0.2), _N_filt_optimalR_calc(10), _r_min_exp_function(&R_opt_calc_funct),
-			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
+			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
 			       _fat(jet),_rnEngine(0),
@@ -473,7 +473,7 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet,
 			       _zcut(0.1), _rcut_factor(0.5),
 			       _max_fatjet_R(jet.validated_cluster_sequence()->jet_def().R()), _min_fatjet_R(0.5), _step_R(0.1), _optimalR_threshold(0.2),
 			       _R_filt_optimalR_calc(0.2), _N_filt_optimalR_calc(10), _r_min_exp_function(&R_opt_calc_funct),
-			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
+			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3), _R_opt_reject_min(false),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
 			       _fat(jet), _rnEngine(0),
@@ -594,9 +594,13 @@ void HEPTopTaggerV2::run() {
       small_fatjets.clear();
     }//End of loop over R
 
-    // if we did not find Ropt in the loop, pick the last value
-    if (_Ropt == 0 && _HEPTopTaggerV2[maxR].t().m() > 0)
-      _Ropt = minR;
+    // if we did not find Ropt in the loop:
+    if (_Ropt == 0 && _HEPTopTaggerV2[maxR].t().m() > 0){
+      // either pick the last value (_R_opt_reject_min=false)
+      // or leace Ropt at zero (_R_opt_reject_min=true)
+      if (_R_opt_reject_min==false)
+	_Ropt = minR;            
+    }
 
     //for the case that there is no tag at all (< 3 hard substructures)
     if (_Ropt == 0 && _HEPTopTaggerV2[maxR].t().m() == 0)

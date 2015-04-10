@@ -133,6 +133,9 @@ namespace cms
     double maxR_; // maximal fatjet size for MultiR tagger (tagger)
     double minR_; // minimal fatjet size for MultiR tagger (tagger)
         
+    bool rejectMinR_; // set Ropt to zero when the candidate never
+		      // leaves the window around the initial mass
+
     bool verbose_;
 
   };

@@ -29,6 +29,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        maxM13Cut_(1.3),
        maxR_(1.5),
        minR_(0.5),
+       rejectMinR_(false),
        verbose_(false )
 {
   
@@ -90,7 +91,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   if ( conf.exists("minR") )
     minR_ = conf.getParameter<double>("minR");
 
-  
+  if ( conf.exists("rejectMinR") )
+    rejectMinR_ = conf.getParameter<bool>("rejectMinR");
+
   if ( conf.exists("verbose") )
     verbose_ = conf.getParameter<bool>("verbose");
   
