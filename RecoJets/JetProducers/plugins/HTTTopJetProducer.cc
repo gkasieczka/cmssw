@@ -11,6 +11,7 @@ using namespace std;
 HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
        FastjetJetProducer( conf ),
        optimalR_(false),
+       qJets_(false),
        minFatjetPt_(200.),
        minSubjetPt_(20.),
        minCandPt_(200.),
@@ -34,6 +35,9 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   // Read in all the options from the configuration
   if ( conf.exists("optimalR") ) 
     optimalR_ = conf.getParameter<bool>("optimalR");
+
+  if ( conf.exists("qJets") ) 
+    qJets_ = conf.getParameter<bool>("qJets");
 
   if ( conf.exists("minFatjetPt") ) 
     minFatjetPt_ = conf.getParameter<double>("minFatjetPt");
@@ -98,6 +102,7 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
   
   fjHEPTopTagger_ = std::auto_ptr<fastjet::HEPTopTaggerV2>(new fastjet::HEPTopTaggerV2(
 										       optimalR_,
+										       qJets_,
 										       minSubjetPt_, 
 										       minCandPt_,
 										       subjetMass_, 	    
@@ -112,7 +117,6 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 										       minM13Cut_, 	    
 										       maxM13Cut_)); 
   
-
 }
 
 		
@@ -121,6 +125,13 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 
 void HTTTopJetProducer::produce(  edm::Event & e, const edm::EventSetup & c ) 
 {
+
+  if (qJets_){
+    edm::Service<edm::RandomNumberGenerator> rng;
+    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+    fjHEPTopTagger_->set_rng(engine);
+  }
+
   FastjetJetProducer::produce(e, c);
 }
 
@@ -195,17 +206,26 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
     properties.fjEta            = s->fj_eta();
     properties.fjPhi            = s->fj_phi();
     
-    properties.topMass         = s->top_mass();
+    properties.topMass           = s->top_mass();
     properties.unfilteredMass	 = s->unfiltered_mass();
     properties.prunedMass	 = s->pruned_mass();
-    properties.fW		 = s->fW();
-    properties.massRatioPassed = s->mass_ratio_passed();
+    properties.fRec		 = s->fRec();
+    properties.massRatioPassed   = s->mass_ratio_passed();
     
-    properties.isMultiR	  = 0;
-    properties.Rmin	          = s->Ropt();
-    properties.RminExpected     = s->Ropt_calc();
-    properties.ptFiltForRminExp = s->pt_for_Ropt_calc();
+    properties.Ropt	          = s->Ropt();
+    properties.RoptCalc           = s->RoptCalc();
+    properties.ptForRoptCalc      = s->ptForRoptCalc();
     
+    properties.tau1Unfiltered     = s->Tau1Unfiltered();
+    properties.tau2Unfiltered	  = s->Tau2Unfiltered();
+    properties.tau3Unfiltered	  = s->Tau3Unfiltered();
+    properties.tau1Filtered	  = s->Tau1Filtered();
+    properties.tau2Filtered	  = s->Tau2Filtered();
+    properties.tau3Filtered	  = s->Tau3Filtered();
+    properties.QWeight		  = s->Qweight();
+    properties.QEpsilon		  = s->Qepsilon(); 
+    properties.QSigmaM            = s->QsigmaM();
+
     tagInfo.insert(rtb, properties );
     tagInfos->push_back( tagInfo );   
   }

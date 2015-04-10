@@ -11,6 +11,7 @@
 #include "fastjet/contrib/Njettiness.hh"
 #include "fastjet/contrib/Nsubjettiness.hh"
 #include "QjetsPlugin.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 // Allow putting evertything into a separate namepsace
 // Do not change next line, it's needed by the sed-code that makes the tagger CMSSW-compatible.
@@ -72,7 +73,8 @@ public:
   void set_qjets(double q_zcut, double q_dcut_fctr, double q_exp_min, double q_exp_max, double q_rigidity, double q_truncation_fctr) {
     _q_zcut = q_zcut; _q_dcut_fctr = q_dcut_fctr; _q_exp_min = q_exp_min; _q_exp_max = q_exp_max; _q_rigidity =  q_rigidity; _q_truncation_fctr =  q_truncation_fctr;
   }
-  
+  void set_qjets_rng(CLHEP::HepRandomEngine* engine){ _rnEngine = engine;}
+
   //get information
   bool is_maybe_top() const {return _is_maybe_top;}
   bool is_masscut_passed() const {return _is_masscut_passed;}
@@ -134,6 +136,9 @@ private:
   JetDefinition _qjet_def;
   
   PseudoJet _fat;
+
+  CLHEP::HepRandomEngine* _rnEngine;
+
   bool _debug;
   
   bool _is_masscut_passed;
@@ -276,8 +281,9 @@ public:
   void set_qjets(double q_zcut, double q_dcut_fctr, double q_exp_min, double q_exp_max, double q_rigidity, double q_truncation_fctr) {
     _q_zcut = q_zcut; _q_dcut_fctr = q_dcut_fctr; _q_exp_min = q_exp_min; _q_exp_max = q_exp_max; _q_rigidity =  q_rigidity; _q_truncation_fctr =  q_truncation_fctr;
   }
-  
-  
+  void set_qjets_rng(CLHEP::HepRandomEngine* engine){ _rnEngine = engine;}
+
+   
 private:
   bool _do_optimalR, _do_qjets;
  
@@ -321,6 +327,8 @@ private:
   HEPTopTaggerV2_fixed_R _HEPTopTaggerV2_opt;
 
   int _Ropt;
+
+  CLHEP::HepRandomEngine* _rnEngine;
   
   bool _debug;
   double _qweight;
