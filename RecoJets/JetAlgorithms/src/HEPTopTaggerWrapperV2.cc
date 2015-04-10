@@ -38,17 +38,21 @@ FASTJET_BEGIN_NAMESPACE
 
 
 // Expected R_min for tops (as function of filtered initial fatjet pT in GeV (using CA, R=0.2, n=10)
-// From ttbar sample, matched to hadronically decaying top with delta R < 0.8 and true top pT > 200
-// Cuts are: fW < 0.175 and  m_top = 120..170
-// Input objects are packed pfCandidates (wo/ filtering)
-// IMPORTANT: this might need to be changed when changing input or preselection cuts
+// From ttbar sample, phys14, n20, bx25
+// matched to hadronically decaying top with delta R < 1.2 and true top pT > 200
+// Cuts are: fW < 0.175 and  m_top = 120..220
+// Input objects are packed pfCandidates with CHS
 double R_min_expected_function(double x){
-  if (x<300)
-    return 1.17 + 1.91e-03*x - 6.45e-06*x*x;
-  else if (x<500)
-    return 1.89 - 2.89e-03*x + 1.55e-06*x*x;
-  else
-    return 1.86 - 2.78e-03*x + 1.44e-06*x*x;
+
+  if (x>1000)
+    x=1000;
+    
+  double A = -4.02290e+00;
+  double B =  8.97577e-02;
+  double C =  2.10638e+03;
+  double D = -4.19572e+05;
+  double E =  3.20825e+07;
+  return A+B*sqrt(x)+C/x+D/(x*x)+E/(x*x*x);
 }
 
 
