@@ -65,6 +65,10 @@
 
 #include "RecoJets/JetAlgorithms/interface/HEPTopTaggerWrapperV2.h"
 
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CLHEP/Random/RandomEngine.h"
+
 #include "fastjet/SISConePlugin.hh"
 
 
@@ -93,7 +97,8 @@ namespace cms
     // Below are all configurable options. 
     // Parenthesis indicates if this is enforced by the tagger itself or by the producer
 
-    bool optimalR_; // Should the MultiR version of the tagger be used? (producer)
+    bool optimalR_; // Should the MultiR version of the tagger be used? (tagger)
+    bool qJets_; // Should Q-jets be used? (tagger/producer)
 
     double minFatjetPt_; // Only process fatjets larger pT with the tagger [GeV] (producer)
     double minSubjetPt_; // Minimal pT for subjets [GeV] (tagger)

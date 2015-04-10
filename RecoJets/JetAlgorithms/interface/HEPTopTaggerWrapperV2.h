@@ -22,6 +22,7 @@
 
 #include <fastjet/tools/TopTaggerBase.hh>
 #include <fastjet/CompositeJetStructure.hh>
+#include "CLHEP/Random/RandomEngine.h"
 #include <sstream>
 
 FASTJET_BEGIN_NAMESPACE
@@ -47,7 +48,8 @@ class HEPTopTaggerV2Structure;
 
 class HEPTopTaggerV2 : public TopTaggerBase {
 public:
- HEPTopTaggerV2(bool optimalR,
+ HEPTopTaggerV2(bool DoOptimalR,
+		bool DoQjets,
 		double minSubjetPt, 
 		double minCandPt, 
 		double subjetMass, 
@@ -60,7 +62,8 @@ public:
 		double massRatioWidth, 
 		double minM23Cut, 
 		double minM13Cut, 
-		double maxM13Cut) : optimalR_(optimalR),
+		double maxM13Cut) : DoOptimalR_(DoOptimalR),
+    DoQjets_(DoQjets),
     minSubjetPt_(minSubjetPt),
     minCandPt_(minCandPt),
     subjetMass_(subjetMass),
@@ -73,7 +76,8 @@ public:
     massRatioWidth_(massRatioWidth),
     minM23Cut_(minM23Cut),
     minM13Cut_(minM13Cut),
-    maxM13Cut_(maxM13Cut)   
+    maxM13Cut_(maxM13Cut),
+    engine_(0)
   {}
 
   /// returns a textual description of the tagger
@@ -85,11 +89,14 @@ public:
   ///  \param jet   the PseudoJet to tag
   virtual PseudoJet result(const PseudoJet & jet) const;
 
+  void set_rng(CLHEP::HepRandomEngine* engine){ engine_ = engine;}
+
   // the type of the associated structure
   typedef HEPTopTaggerV2Structure StructureType;
 
 private:
-    bool optimalR_; // Use optimalR mode
+    bool DoOptimalR_; // Use optimalR mode
+    bool DoQjets_; // Use qjet mode
 
     double minSubjetPt_; // Minimal pT for subjets [GeV]
     double minCandPt_;   // Minimal pT to return a candidate [GeV]
@@ -117,6 +124,9 @@ private:
     double minM23Cut_; // minimal value of m23/m123
     double minM13Cut_; // minimal value of atan(m13/m12)
     double maxM13Cut_; // maximal value of atan(m13/m12)
+  
+    // Random engine for Q-jet HTT
+    CLHEP::HepRandomEngine* engine_;
 };
 
 
@@ -133,9 +143,18 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
     _top_mass(0.0),
     _unfiltered_mass(0.0),
     _pruned_mass(0.0),
-    _fW(-1.),
+    _fRec(-1.),
     _mass_ratio_passed(-1),
-    _ptFiltForRminExp(-1),
+    _ptForRoptCalc(-1),
+    _tau1Unfiltered(-1.),
+    _tau2Unfiltered(-1.),
+    _tau3Unfiltered(-1.),
+    _tau1Filtered(-1.),
+    _tau2Filtered(-1.),
+    _tau3Filtered(-1.),
+    _Qweight(-1.),    
+    _Qepsilon(-1.),    
+    _QsigmaM(-1.),    
     W_rec(recombiner), 
     rW_(){}
   
@@ -186,21 +205,32 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
    /// returns the pruned mass
    inline double pruned_mass() const {return _pruned_mass;}
 
-   /// returns fW
-   inline double fW() const {return _fW;}
+   /// returns fRec
+   inline double fRec() const {return _fRec;}
 
    /// returns if 2d-mass plane cuts were passed
    inline double mass_ratio_passed() const {return _mass_ratio_passed;}
 
    /// returns Ropt
-   inline double Ropt() const {return _Rmin;}
+   inline double Ropt() const {return _Ropt;}
 
-   /// returns expected Rmin
-   inline double Ropt_calc() const {return _RminExpected;}
+   /// returns calculated Ropt
+   inline double RoptCalc() const {return _RoptCalc;}
 
-   /// returns the filtered pT for calculating expected R_opt
-   inline double pt_for_Ropt_calc() const {return _ptFiltForRminExp;}
+   /// returns the filtered pT for calculating R_opt
+   inline double ptForRoptCalc() const {return _ptForRoptCalc;}
 
+   // Nsubjettiness and Q-jet variables
+   inline double Tau1Unfiltered() const {return _tau1Unfiltered;}
+   inline double Tau2Unfiltered() const {return _tau2Unfiltered;}
+   inline double Tau3Unfiltered() const {return _tau3Unfiltered;}
+   inline double Tau1Filtered() const {return _tau1Filtered;}
+   inline double Tau2Filtered() const {return _tau2Filtered;}
+   inline double Tau3Filtered() const {return _tau3Filtered;}
+
+   inline double Qweight() const {return _Qweight;}
+   inline double Qepsilon() const {return _Qepsilon;}
+   inline double QsigmaM() const {return _QsigmaM;}   
     
  protected:
 
@@ -212,11 +242,21 @@ class HEPTopTaggerV2Structure : public CompositeJetStructure, public TopTaggerBa
       double _top_mass;
       double _unfiltered_mass;
       double _pruned_mass;
-      double _fW;
+      double _fRec;
       int _mass_ratio_passed;
-      double _ptFiltForRminExp;
-      double _Rmin;
-      double _RminExpected;
+      double _ptForRoptCalc;
+      double _Ropt;
+      double _RoptCalc;
+
+      double _tau1Unfiltered;
+      double _tau2Unfiltered;
+      double _tau3Unfiltered;
+      double _tau1Filtered;
+      double _tau2Filtered;
+      double _tau3Filtered;
+      double _Qweight;
+      double _Qepsilon;
+      double _QsigmaM;
 
       const JetDefinition::Recombiner  * W_rec;
  

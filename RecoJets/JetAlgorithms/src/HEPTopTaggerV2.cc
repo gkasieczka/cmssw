@@ -139,7 +139,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
 					       _nfilt(5), _Rfilt(0.3), _jet_algorithm_filter(fastjet::cambridge_algorithm), _minpt_subjet(0.),
 					       _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 					       _zcut(0.1), _rcut_factor(0.5),
-					       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
+					       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
 					       //_qjet_plugin(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr),
 					       _debug(false)
 {
@@ -167,7 +167,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _
 									   _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-									   _fat(jet),
+									   _fat(jet), _rnEngine(0),
 									   _debug(false)
 {}
 
@@ -181,7 +181,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet,
 									   _jet_algorithm_recluster(fastjet::cambridge_algorithm),
 									   _zcut(0.1), _rcut_factor(0.5),
 									   _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-									   _fat(jet),
+									   _fat(jet), _rnEngine(0),
 									   _debug(false)
 {}
 
@@ -214,6 +214,7 @@ void HEPTopTaggerV2_fixed_R::run() {
     _qweight=ext->weight();
     _jet = _qjet;
     _fat = _qjet;
+    _qjet_plugin.SetRNEngine(_rnEngine);
   }
   
   //initialization
@@ -438,7 +439,7 @@ HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
 			       _R_filt_optimalR_calc(0.2), _N_filt_optimalR_calc(10), _r_min_exp_function(&R_opt_calc_funct),
 			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
-			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
+  _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0), _rnEngine(0),
 			       _debug(false)
 {}
 
@@ -456,7 +457,7 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet
 			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-			       _fat(jet),
+			       _fat(jet),_rnEngine(0),
 			       _debug(false)
 {}
 
@@ -475,18 +476,19 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet,
 			       _optimalR_mmin(150.), _optimalR_mmax(200.), _optimalR_fw(0.175), _R_opt_diff(0.3),
 			       _R_filt_optimalR_pass(0.2), _N_filt_optimalR_pass(5), _R_filt_optimalR_fail(0.3), _N_filt_optimalR_fail(3),
 			       _q_zcut(0.1), _q_dcut_fctr(0.5), _q_exp_min(0.), _q_exp_max(0.), _q_rigidity(0.1), _q_truncation_fctr(0.0),
-			       _fat(jet),
+			       _fat(jet), _rnEngine(0),
 			       _debug(false)
 {}
 
 void HEPTopTaggerV2::run() {
-  cout << "--- new Tagger run ---" << endl;
+  //cout << "--- new Tagger run ---" << endl;
 
   QjetsPlugin _qjet_plugin(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr);
   int maxR = int(_max_fatjet_R * 10);
   int minR = int(_min_fatjet_R * 10);
   int stepR = int(_step_R * 10);
   _qweight=-1;
+  _qjet_plugin.SetRNEngine(_rnEngine);
 
   if (!_do_optimalR) {
     HEPTopTaggerV2_fixed_R htt(_jet);   
@@ -509,7 +511,7 @@ void HEPTopTaggerV2::run() {
     htt.set_debug(_debug);
     htt.set_qjets(_q_zcut, _q_dcut_fctr, _q_exp_min, _q_exp_max, _q_rigidity, _q_truncation_fctr);
     htt.run();
-
+    
     _HEPTopTaggerV2[maxR] = htt;
     _Ropt = maxR;
     _qweight = htt.q_weight();

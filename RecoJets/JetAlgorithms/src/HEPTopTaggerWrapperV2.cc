@@ -66,6 +66,8 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   }
 
   external::HEPTopTaggerV2 tagger(jet);
+  
+  external::HEPTopTaggerV2 best_tagger;
 
   // translate the massRatioWidth (which should be the half-width given in %) 
   // to values useful for the A-shape cuts
@@ -81,7 +83,7 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   tagger.set_filtering_minpt_subjet(minSubjetPt_); 
 
   // Optimal R
-  tagger.do_optimalR(optimalR_);
+  tagger.do_optimalR(DoOptimalR_);
 
   // How to select among candidates
   tagger.set_mode((external::Mode)mode_);
@@ -95,7 +97,62 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   // Set function to calculate R_min_expected
   tagger.set_optimalR_calc_fun(R_min_expected_function);
 
-  tagger.run();
+  
+  double Qweight  = -1;
+  double Qepsilon = -1;
+  double QsigmaM  = -1;
+
+  if (DoQjets_){
+    
+    int niter(100);
+    double q_zcut(0.1);
+    double q_dcut_fctr(0.5);
+    double q_exp_min(0.);
+    double q_exp_max(0.);
+    double q_rigidity(0.1);
+    double q_truncation_fctr(0.0);
+           
+    double weight_q1 = -1.;
+    double m_sum = 0.;
+    double m2_sum = 0.;
+    int qtags = 0;
+
+    tagger.set_qjets(q_zcut,
+		     q_dcut_fctr,
+		     q_exp_min,
+		     q_exp_max,
+		     q_rigidity,
+		     q_truncation_fctr);
+    tagger.set_qjets_rng(engine_);    
+    tagger.do_qjets(true);
+    tagger.run();
+
+    for (int iq = 0; iq < niter; iq++) {
+      tagger.run();
+      if (tagger.is_tagged()) {
+	qtags++;
+	m_sum += tagger.t().m();
+	m2_sum += tagger.t().m() * tagger.t().m();
+	if (tagger.q_weight() > weight_q1)
+	  best_tagger = tagger;
+	  weight_q1=tagger.q_weight();             
+      }
+    }
+    
+    tagger = best_tagger;
+    Qweight = weight_q1;
+    Qepsilon = float(qtags)/float(niter);
+    
+    // calculate width of tagged mass distribution if we have at least one candidate
+    if (qtags > 0){
+      double mean_m = m_sum / qtags;
+      double mean_m2 = m2_sum / qtags;
+      QsigmaM = sqrt(mean_m2 - mean_m*mean_m);
+    }
+  }
+  else{
+    tagger.run();
+  }
 
   // Requires:
   //   - top mass window
@@ -128,12 +185,32 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   s->_top_mass = tagger.t().m();
   s->_pruned_mass = tagger.pruned_mass();
   s->_unfiltered_mass = tagger.unfiltered_mass();
-  s->_fW = tagger.f_rec();
+  s->_fRec = tagger.f_rec();
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
-  s->_Rmin = tagger.Ropt();
-  s->_RminExpected = tagger.Ropt_calc();
-  s->_ptFiltForRminExp = tagger.pt_for_Ropt_calc();
+
+  s->_tau1Unfiltered = tagger.nsub_unfiltered(1);
+  s->_tau2Unfiltered = tagger.nsub_unfiltered(2);
+  s->_tau3Unfiltered = tagger.nsub_unfiltered(3);
+  s->_tau1Filtered = tagger.nsub_filtered(1);
+  s->_tau2Filtered = tagger.nsub_filtered(2);
+  s->_tau3Filtered = tagger.nsub_filtered(3);
+
+  s->_Qweight = Qweight;
+  s->_Qepsilon = Qepsilon;
+  s->_QsigmaM = QsigmaM;
+
+
+  if (DoOptimalR_){
+    s->_Ropt = tagger.Ropt();
+    s->_RoptCalc = tagger.Ropt_calc();
+    s->_ptForRoptCalc = tagger.pt_for_Ropt_calc();
+  }
+  else {
+    s->_Ropt = -1;
+    s->_RoptCalc = -1;
+    s->_ptForRoptCalc = -1;
+  }
 
   // Removed selectors as all cuts are applied in HTT
 
