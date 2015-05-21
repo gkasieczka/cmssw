@@ -194,12 +194,12 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet & jet) const{
   s->_mass_ratio_passed = tagger.is_masscut_passed();
 
 
-  s->_tau1Unfiltered = tagger.nsub_unfiltered(1);
-  s->_tau2Unfiltered = tagger.nsub_unfiltered(2);
-  s->_tau3Unfiltered = tagger.nsub_unfiltered(3);
-  s->_tau1Filtered = tagger.nsub_filtered(1);
-  s->_tau2Filtered = tagger.nsub_filtered(2);
-  s->_tau3Filtered = tagger.nsub_filtered(3);
+//  s->_tau1Unfiltered = tagger.nsub_unfiltered(1);
+//  s->_tau2Unfiltered = tagger.nsub_unfiltered(2);
+//  s->_tau3Unfiltered = tagger.nsub_unfiltered(3);
+//  s->_tau1Filtered = tagger.nsub_filtered(1);
+//  s->_tau2Filtered = tagger.nsub_filtered(2);
+//  s->_tau3Filtered = tagger.nsub_filtered(3);
 
   s->_Qweight = Qweight;
   s->_Qepsilon = Qepsilon;
