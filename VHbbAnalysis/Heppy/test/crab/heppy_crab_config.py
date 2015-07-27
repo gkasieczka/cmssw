@@ -2,8 +2,8 @@ from WMCore.Configuration import Configuration
 config = Configuration()
 
 config.section_("General")
-config.General.requestName = 'VHBB_HEPPY_T12_D004'
-config.General.workArea = 'crab_projects_T12_D004'
+config.General.requestName = 'VHBB_HEPPY_T12_D005'
+config.General.workArea = 'crab_projects_T12_D005'
 config.General.transferLogs=True
 
 config.section_("JobType")
@@ -46,8 +46,8 @@ config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 #config.Data.unitsPerJob = 20
 #config.Data.totalUnits = 100
-config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON.txt'
-config.Data.runRange = '246908-251883' 
+config.Data.lumiMask = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions15/13TeV/Cert_246908-251883_13TeV_PromptReco_Collisions15_JSON_v2.txt'
+config.Data.runRange = '251244-251883' 
 config.Data.outLFNDirBase = '/store/user/gregor/VHBBHeppyT12/'
 config.Data.publication = True
 config.Data.publishDataName = 'VHBB_HEPPY_T12'
