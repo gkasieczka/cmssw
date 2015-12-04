@@ -78,14 +78,14 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   float value = -10.;
 
   // default variable values
-  float z_ratio = -3.;
-  float trackSip3dSig_3 = -50., trackSip3dSig_2 = -50., trackSip3dSig_1 = -50., trackSip3dSig_0 = -50.;
-  float tau2_trackSip3dSig_0 = -50., tau1_trackSip3dSig_0 = -50., tau2_trackSip3dSig_1 = -50., tau1_trackSip3dSig_1 = -50.;
-  float trackSip2dSigAboveCharm_0 = -19., trackSip2dSigAboveBottom_0 = -19., trackSip2dSigAboveBottom_1 = -19.;
-  float tau1_trackEtaRel_0 = -1., tau1_trackEtaRel_1 = -1., tau1_trackEtaRel_2 = -1.;
-  float tau2_trackEtaRel_0 = -1., tau2_trackEtaRel_1 = -1., tau2_trackEtaRel_2 = -1.;
-  float tau1_vertexMass = -1., tau1_vertexEnergyRatio = -1., tau1_vertexDeltaR = -1., tau1_flightDistance2dSig = -1.;
-  float tau2_vertexMass = -1., tau2_vertexEnergyRatio = -1., tau2_vertexDeltaR = -1., tau2_flightDistance2dSig = -1.;
+  float z_ratio = dummyZ_ratio;
+  float trackSip3dSig_3 = dummyTrackSip3dSig, trackSip3dSig_2 = dummyTrackSip3dSig, trackSip3dSig_1 = dummyTrackSip3dSig, trackSip3dSig_0 = dummyTrackSip3dSig;
+  float tau2_trackSip3dSig_0 = dummyTrackSip3dSig, tau1_trackSip3dSig_0 = dummyTrackSip3dSig, tau2_trackSip3dSig_1 = dummyTrackSip3dSig, tau1_trackSip3dSig_1 = dummyTrackSip3dSig;
+  float trackSip2dSigAboveCharm_0 = dummyTrackSip2dSigAbove, trackSip2dSigAboveBottom_0 = dummyTrackSip2dSigAbove, trackSip2dSigAboveBottom_1 = dummyTrackSip2dSigAbove;
+  float tau1_trackEtaRel_0 = dummyTrackEtaRel, tau1_trackEtaRel_1 = dummyTrackEtaRel, tau1_trackEtaRel_2 = dummyTrackEtaRel;
+  float tau2_trackEtaRel_0 = dummyTrackEtaRel, tau2_trackEtaRel_1 = dummyTrackEtaRel, tau2_trackEtaRel_2 = dummyTrackEtaRel;
+  float tau1_vertexMass = dummyVertexMass, tau1_vertexEnergyRatio = dummyVertexEnergyRatio, tau1_vertexDeltaR = dummyVertexDeltaR, tau1_flightDistance2dSig = dummyFlightDistance2dSig;
+  float tau2_vertexMass = dummyVertexMass, tau2_vertexEnergyRatio = dummyVertexEnergyRatio, tau2_vertexDeltaR = dummyVertexDeltaR, tau2_flightDistance2dSig = dummyFlightDistance2dSig;
   float jetNTracks = 0, nSV = 0, tau1_nSecondaryVertices = 0, tau2_nSecondaryVertices = 0;
 
   // get the jet reference
@@ -159,15 +159,10 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     reco::TransientTrack transientTrack = trackBuilder->build(ptrack);
     GlobalVector direction(jet->px(), jet->py(), jet->pz());
 
-    if (currentAxes.size() > 1)
-    {
-      if (reco::deltaR2(ptrack,currentAxes[1]) < reco::deltaR2(ptrack,currentAxes[0]))
-        direction = GlobalVector(currentAxes[1].px(), currentAxes[1].py(), currentAxes[1].pz());
-      else
-        direction = GlobalVector(currentAxes[0].px(), currentAxes[0].py(), currentAxes[0].pz());
-    }
-    else if (currentAxes.size() > 0)
-      direction = GlobalVector(currentAxes[0].px(), currentAxes[0].py(), currentAxes[0].pz());
+    int index = 0;
+    if (currentAxes.size() > 1 && reco::deltaR2(ptrack,currentAxes[1]) < reco::deltaR2(ptrack,currentAxes[0]))
+        index = 1;
+    direction = GlobalVector(currentAxes[index].px(), currentAxes[index].py(), currentAxes[index].pz());
 
     // decay distance and track distance wrt to the closest tau axis
     float decayLengthTau=-1;
@@ -211,7 +206,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
 
     kin.add(track);
 
-    if ( kin.vectorSum().M() > 1.5 // charm cut
+    if ( kin.vectorSum().M() > charmThreshold // charm cut
          && !charmThreshSet )
     {
       trackSip2dSigAboveCharm_0 = data.ip2d.significance();
@@ -219,7 +214,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
       charmThreshSet = true;
     }
 
-    if ( kin.vectorSum().M() > 5.2 ) // bottom cut
+    if ( kin.vectorSum().M() > bottomThreshold ) // bottom cut
     {
       trackSip2dSigAboveBottom_0 = data.ip2d.significance();
       if ( (i+1)<indices.size() ) trackSip2dSigAboveBottom_1 = (ipData[indices[i+1]]).ip2d.significance();
@@ -478,6 +473,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   int cont=0;
   GlobalVector flightDir_0, flightDir_1;
   reco::Candidate::LorentzVector SV_p4_0 , SV_p4_1;
+  double vtxMass = 0.;
 
   for ( std::map<double, size_t>::iterator iVtx=VTXmap.begin(); iVtx!=VTXmap.end(); ++iVtx)
   {
@@ -487,15 +483,19 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     {
       flightDir_0 = svTagInfo.flightDirection(iVtx->second);
       SV_p4_0 = vertex.p4();
+      vtxMass = SV_p4_0.mass();
 
-      z_ratio = reco::deltaR(currentAxes[1],currentAxes[0])*SV_p4_0.pt()/SV_p4_0.mass();
+      if(vtxMass > 0.)
+        z_ratio = reco::deltaR(currentAxes[1],currentAxes[0])*SV_p4_0.pt()/vtxMass;
     }
     if (cont==2)
     {
       flightDir_1 = svTagInfo.flightDirection(iVtx->second);
       SV_p4_1 = vertex.p4();
+      vtxMass = (SV_p4_1+SV_p4_0).mass();
 
-      z_ratio = reco::deltaR(flightDir_0,flightDir_1)*SV_p4_1.pt()/(SV_p4_1+SV_p4_0).mass();
+      if(vtxMass > 0.)
+        z_ratio = reco::deltaR(flightDir_0,flightDir_1)*SV_p4_1.pt()/vtxMass;
 
       break;
     }
@@ -521,9 +521,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     tau1_flightDistance2dSig= tau2_flightDistance2dSig;
     tau2_flightDistance2dSig= temp;
 
-    temp = tau1_vertexDeltaR;
     tau1_vertexDeltaR= tau2_vertexDeltaR;
-    tau2_vertexDeltaR= temp;
 
     temp = tau1_vertexEnergyRatio;
     tau1_vertexEnergyRatio= tau2_vertexEnergyRatio;
