@@ -1,5 +1,5 @@
 import ROOT
-import os, types
+import os, pdb, types
 from math import *
 from PhysicsTools.HeppyCore.utils.deltar import *
 
@@ -99,7 +99,7 @@ class JetReCalibrator:
                     for i in [self.L2JetPar,self.L3JetPar,self.ResJetPar]: self.vParL3Res.push_back(i)
                     self.separateJetCorrectors["L2L3Res"] = ROOT.FactorizedJetCorrector(self.vParL3Res)
 
-    def getCorrection(self,jet,rho,delta=0,corrector=None,uncertainty="Total"):
+    def getCorrection(self,jet,rho,delta=0,corrector=None,uncertainty="Total", recalcMet=True):
         """
         Evaluates the jet pt correction, possibly with uncertainty.
         The correction is applied multiplicatively to the pT -> corr * pT.
@@ -138,12 +138,14 @@ class JetReCalibrator:
 
         try:
             jet.jetEnergyCorrUncertainty = self.JetUncertainty.getUncertainty(True)
+
             #print "jetEnergyCorrUncertainty {0} {1}".format(uncertainty, jet.jetEnergyCorrUncertainty)
         except RuntimeError as r:
             print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
             jet.jetEnergyCorrUncertainty = 0.5
         #print "   jet with corr pt %6.2f has an uncertainty %.2f " % (jet.pt()*jet.rawFactor()*corr, jet.jetEnergyCorrUncertainty)
         corr *= max(0, 1+delta*jet.jetEnergyCorrUncertainty)
+
         return corr
 
     def rawP4forType1MET_(self, jet):
@@ -160,7 +162,7 @@ class JetReCalibrator:
                     p4 -= pfcand.p4()
         return p4
 
-    def correct(self,jet,rho,delta=0,addCorr=False,addShifts=False, metShift=[0,0],type1METCorr=[0,0,0]):
+    def correct(self,jet,rho,delta=0,addCorr=False,addShifts=False, recalcMet=True, metShift=[0,0],type1METCorr=[0,0,0]):
         """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
 
            If addCorr, set jet.corr to the correction.
@@ -175,26 +177,31 @@ class JetReCalibrator:
            The type1METCorr vector, will accumulate the x, y, sumEt type1 MET corrections, to be
            applied to the *RAW MET* (if the feature was turned on in the constructor of the class).
         """
-        raw = jet.rawFactor()
-        corr = self.getCorrection(jet,rho,delta)
+            
+        raw = jet.rawFactor()            
+        corr = self.getCorrection(jet,rho,delta,recalcMet=recalcMet)
+    
         if addCorr: 
             jet.corr = corr
             for sepcorr in self.separateJetCorrectors.keys():
-                setattr(jet,"CorrFactor_"+sepcorr,self.getCorrection(jet,rho,delta=0,corrector=self.separateJetCorrectors[sepcorr]))
+                setattr(jet,"CorrFactor_"+sepcorr,self.getCorrection(jet,rho,delta=0,recalcMet=recalcMet, corrector=self.separateJetCorrectors[sepcorr]))
         if addShifts:
             for unc in self.factorizedJetCorrections:
                 for cdelta, sdir in [(1.0, "Up"), (-1.0, "Down")]:
-                    cshift = self.getCorrection(jet, rho, uncertainty = unc, delta = delta + cdelta)
+                    cshift = self.getCorrection(jet, rho, uncertainty = unc, delta = delta + cdelta, recalcMet=recalcMet)
                     setattr(jet, "corr{0}{1}".format(unc, sdir), cshift)
 
             #get also the total correction as corrJEC for backwards compatibility
             for cdelta, sdir in [(1.0, "JECUp"), (-1.0, "JECDown")]:
-                cshift = self.getCorrection(jet, rho, uncertainty = "Total", delta = delta + cdelta)
+                cshift = self.getCorrection(jet, rho, uncertainty = "Total", delta = delta + cdelta, recalcMet=recalcMet)
                 setattr(jet, "corr{0}".format(sdir), cshift)
         if corr <= 0:
             return False
+            
+
         newpt = jet.pt()*raw*corr
-        if newpt > self.type1METParams['jetPtThreshold']:
+
+        if newpt > self.type1METParams['jetPtThreshold'] and recalcMet:
             rawP4forT1 = self.rawP4forType1MET_(jet)
             if rawP4forT1 and rawP4forT1.Pt()*corr > self.type1METParams['jetPtThreshold']:
                 metShift[0] -= rawP4forT1.Px() * (corr - 1.0/raw)
@@ -208,6 +215,7 @@ class JetReCalibrator:
                     type1METCorr[0] -= rawP4forT1.Px() * (corr - l1corr) 
                     type1METCorr[1] -= rawP4forT1.Py() * (corr - l1corr) 
                     type1METCorr[2] += rawP4forT1.Et() * (corr - l1corr) 
+
         jet.setCorrP4(jet.p4() * (corr * raw))
         return True
 
