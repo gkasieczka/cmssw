@@ -87,17 +87,24 @@ class JetReCalibrator:
         corrector.setJetA(jet.jetArea())
         corrector.setRho(rho)
         corr = corrector.getCorrection()
-        if delta != 0:
-            JetUncertainty = self.factorizedUncertainties[uncertainty]
-            if not JetUncertainty: raise RuntimeError("Jet energy scale uncertainty shifts requested, but not available")
-            JetUncertainty.setJetEta(jet.eta())
+        # if delta != 0:
+        # Short circuit the condition so we always attach the uncertainty to the jet
+        # (Why was this only done for delta != 0?)
+        JetUncertainty = self.factorizedUncertainties[uncertainty]
+        if not JetUncertainty: raise RuntimeError("Jet energy scale uncertainty shifts requested, but not available")
+        JetUncertainty.setJetEta(jet.eta())
+
+        if isHttSubjet:
+            JetUncertainty.setJetPt(corr * jet.pt())
+        else:
             JetUncertainty.setJetPt(corr * jet.pt() * jet.rawFactor())
-            try:
-                jet.jetEnergyCorrUncertainty = JetUncertainty.getUncertainty(True)
-                #print "jetEnergyCorrUncertainty {0} {1}".format(uncertainty, jet.jetEnergyCorrUncertainty)
-            except RuntimeError as r:
-                print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
-                jet.jetEnergyCorrUncertainty = 0.5
+            
+        try:
+            jet.jetEnergyCorrUncertainty = JetUncertainty.getUncertainty(True)
+            #print "jetEnergyCorrUncertainty {0} {1}".format(uncertainty, jet.jetEnergyCorrUncertainty)
+        except RuntimeError as r:
+            print "Caught %s when getting uncertainty for jet of pt %.1f, eta %.2f\n" % (r,corr * jet.pt() * jet.rawFactor(),jet.eta())
+            jet.jetEnergyCorrUncertainty = 0.5
 
         # Do not calculate metShift for HTT subjets
         if not isHttSubjet:
