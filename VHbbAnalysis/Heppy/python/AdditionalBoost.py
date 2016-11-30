@@ -1082,11 +1082,12 @@ class AdditionalBoost( Analyzer ):
         ########
 
         setattr(event, "ak08", map(PhysicsObject, self.handles["ak08"].product()))
-        setattr(event, "ak08softdropsubjets", map(PhysicsObject, self.handles["ak08softdropsubjets"].product()))
+
+        tmp_ak08_subjets = map(PhysicsObject, self.handles["ak08softdropsubjets"].product())
 
         # Add information from which FJ the subjet comes
         # Loop over subjets
-        for j in getattr(event, "ak08softdropsubjets"):
+        for j in tmp_ak08_subjets:
             
             j.fromFJ = -1
             
@@ -1114,6 +1115,10 @@ class AdditionalBoost( Analyzer ):
 
                 if j.fromFJ > -1:
                     break
+
+        # Only add non-oprphaned subjets to event
+        ak08_subjets = [j for j in tmp_ak08_subjets if j.fromFJ > -1]
+        setattr(event, "ak08softdropsubjets", ak08_subjets)
 
 
         do_calc_bb = False
