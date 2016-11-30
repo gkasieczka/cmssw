@@ -883,7 +883,7 @@ class AdditionalBoost( Analyzer ):
 
             
         ######## 
-        # Subjets 
+        # CA15 Subjets 
         ########
 
         for fj_name in ['ca15pruned', 
@@ -951,8 +951,6 @@ class AdditionalBoost( Analyzer ):
             # Add jetID information 
             for j in getattr(event, fj_name+"subjets"):
                 j.jetID = passesJetId(j)
-
-
             
             # Sort subjets by pT
             setattr(event, fj_name + "subjets", sorted(getattr(event, fj_name + "subjets"), key = lambda x:-x.pt()))
@@ -1085,6 +1083,38 @@ class AdditionalBoost( Analyzer ):
 
         setattr(event, "ak08", map(PhysicsObject, self.handles["ak08"].product()))
         setattr(event, "ak08softdropsubjets", map(PhysicsObject, self.handles["ak08softdropsubjets"].product()))
+
+        # Add information from which FJ the subjet comes
+        # Loop over subjets
+        for j in getattr(event, "ak08softdropsubjets"):
+            
+            j.fromFJ = -1
+            
+            # Loop over fatjets
+            for i_fj, fj in enumerate(getattr(event, "ak08")):
+
+                # Loop over daughters (and see if they correspond to the subjet)
+                # (Unfortunately the object == fails, so we have to use kinematics)
+                for i_daughter in range(fj.numberOfDaughters()):
+
+                    # Only the leading two daughters are subjets
+                    # The rest is constitutents
+                    if i_daughter >= 2:
+                        break
+                    
+                    daughter = fj.daughter(i_daughter)
+
+                    if (daughter.pt() == j.pt() and 
+                        daughter.eta() == j.eta() and 
+                        daughter.phi() == j.phi() and
+                        daughter.mass() == j.mass()):
+
+                        j.fromFJ = i_fj
+                        break
+
+                if j.fromFJ > -1:
+                    break
+
 
         do_calc_bb = False
         # Calc BB tag  
