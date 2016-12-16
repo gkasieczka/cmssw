@@ -692,7 +692,39 @@ class AdditionalBoost( Analyzer ):
                                                   recalibrationTypeAK4, 
                                                   doResidual, 
                                                   jecPath,
-                                                  skipLevel1=False)
+                                                  skipLevel1=False,
+                                                  factorizedJetCorrections  = ["AbsoluteFlavMap",
+                                                                               "AbsoluteMPFBias",
+                                                                               "AbsoluteScale",
+                                                                               "AbsoluteStat",
+                                                                               "FlavorQCD",
+                                                                               "Fragmentation",
+                                                                               "PileUpDataMC",
+                                                                               "PileUpEnvelope",
+                                                                               "PileUpMuZero",
+                                                                               "PileUpPtBB",
+                                                                               "PileUpPtEC1",
+                                                                               "PileUpPtEC2",
+                                                                               "PileUpPtHF",
+                                                                               "PileUpPtRef",
+                                                                               "RelativeFSR",
+                                                                               "RelativeStatFSR",
+                                                                               "RelativeJEREC1",
+                                                                               "RelativeJEREC2",
+                                                                               "RelativeJERHF",
+                                                                               "RelativePtBB",
+                                                                               "RelativePtEC1",
+                                                                               "RelativePtEC2",
+                                                                               "RelativePtHF",
+                                                                               "RelativeStatEC",
+                                                                               #"RelativeStatEC2", #Does not exist in Spring16
+                                                                               "RelativeStatHF",
+                                                                               "SinglePionECAL",
+                                                                               "SinglePionHCAL",
+                                                                               "TimeEta",
+                                                                               "TimePt",
+                                                                               "Total"
+                                                                           ])
 
 
 
@@ -941,9 +973,13 @@ class AdditionalBoost( Analyzer ):
 
                 # Calibrate the subjet
                 sj_uncal = Jet(j)        
+
+                sj_uncal.jecFactor = lambda x:1.
+                sj_uncal._rawFactorMultiplier =1.
+
                 # isHttSubjet is set to true
                 # it can be used for all jets that are uncalibrated and have no RAW factor
-                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, isHttSubjet=True)            
+                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, recalcMet = False)            
                 
                 j.scaleEnergy(cal)
  
@@ -980,19 +1016,28 @@ class AdditionalBoost( Analyzer ):
 
                 # Calibrate the subjets: W1
                 sj_w1_uncal = Jet(sj_w1)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_w1_uncal, rho, isHttSubjet=True)            
+                sj_w1_uncal.jecFactor = lambda x:1.
+                sj_w1_uncal._rawFactorMultiplier =1.
+
+                c = self.jetReCalibratorAK4.getCorrection(sj_w1_uncal, rho, recalcMet=False)            
                 sj_w1_cal = PhysicsObject(sj_w1).__copy__() 
                 sj_w1_cal.scaleEnergy(c)
 
                 # Calibrate the subjets: W2
                 sj_w2_uncal = Jet(sj_w2)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, isHttSubjet=True)            
+                sj_w2_uncal.jecFactor = lambda x:1. 
+                sj_w2_uncal._rawFactorMultiplier =1.
+
+                c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, recalcMet = False)            
                 sj_w2_cal = PhysicsObject(sj_w2).__copy__() 
                 sj_w2_cal.scaleEnergy(c)
 
                 # Calibrate the subjets: NonW
                 sj_nonw_uncal = Jet(sj_nonw)        
-                c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho, isHttSubjet=True)            
+                sj_nonw_uncal.jecFactor = lambda x:1. 
+                sj_nonw_uncal._rawFactorMultiplier =1.
+
+                c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho, recalcMet = False)            
                 sj_nonw_cal = PhysicsObject(sj_nonw).__copy__() 
                 sj_nonw_cal.scaleEnergy(c)
 
@@ -1083,12 +1128,13 @@ class AdditionalBoost( Analyzer ):
 
         setattr(event, "ak08", map(PhysicsObject, self.handles["ak08"].product()))
 
-        tmp_ak08_subjets = map(PhysicsObject, self.handles["ak08softdropsubjets"].product())
+        tmp_ak08_subjets = map(Jet, self.handles["ak08softdropsubjets"].product())
 
         # Add information from which FJ the subjet comes
         # Loop over subjets
         for j in tmp_ak08_subjets:
             
+
             j.fromFJ = -1
             
             # Loop over fatjets
@@ -1115,11 +1161,11 @@ class AdditionalBoost( Analyzer ):
 
                 if j.fromFJ > -1:
                     break
-
+                
         # Only add non-oprphaned subjets to event
         ak08_subjets = [j for j in tmp_ak08_subjets if j.fromFJ > -1]
+        [self.jetReCalibratorAK4.correct(j, rho, addCorr=True,addShifts=True, recalcMet = False) for j in ak08_subjets]
         setattr(event, "ak08softdropsubjets", ak08_subjets)
-
 
         do_calc_bb = False
         # Calc BB tag  

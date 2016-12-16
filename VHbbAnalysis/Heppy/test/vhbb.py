@@ -349,18 +349,21 @@ factorizedJetCorrections = [
     "Total"
 ]
 JetAna.factorizedJetCorrections = factorizedJetCorrections
-for jet_corr in factorizedJetCorrections:
-    for sdir in ["Up", "Down"]:
-        name = jet_corr + sdir
-        jetTypeVHbb.variables += [
-            NTupleVariable(
-                "corr_{0}".format(name),
-                lambda x, name = name: getattr(x, 'corr{0}'.format(name), -99),
-                float,
-                mcOnly=True,
-                help=""
-            )
-        ]
+
+for jet_type in [jetTypeVHbb, patSubjetType]:
+
+        for jet_corr in factorizedJetCorrections:
+            for sdir in ["Up", "Down"]:
+                name = jet_corr + sdir
+                jet_type.variables += [
+                    NTupleVariable(
+                        "corr_{0}".format(name),
+                        lambda x, name = name: getattr(x, 'corr{0}'.format(name), -99),
+                        float,
+                        mcOnly=True,
+                        help=""
+                    )
+                ]
 
 # delta-beta corrected isolation for muons:
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_Isolation

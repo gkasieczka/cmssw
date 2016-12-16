@@ -409,6 +409,8 @@ subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], v
 patSubjetType = NTupleObjectType("patsubjet",  baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("btag",  lambda x : x.bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags"), help="CVS IVF V2 btag-score"),
     NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection"),
+    NTupleVariable("corr",  lambda x : x.corr, help="Correction factor"),
+    
 
 ])
 
