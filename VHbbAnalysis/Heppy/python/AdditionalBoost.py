@@ -1019,27 +1019,32 @@ class AdditionalBoost( Analyzer ):
                 sj_w1_uncal.jecFactor = lambda x:1.
                 sj_w1_uncal._rawFactorMultiplier =1.
 
-                c = self.jetReCalibratorAK4.getCorrection(sj_w1_uncal, rho, recalcMet=False)            
-                sj_w1_cal = PhysicsObject(sj_w1).__copy__() 
-                sj_w1_cal.scaleEnergy(c)
+                sj_w1_cal = Jet(sj_w1_uncal).__copy__() 
+                self.jetReCalibratorAK4.correct(sj_w1_cal, rho, addCorr=True,addShifts=True, recalcMet = False)
 
                 # Calibrate the subjets: W2
                 sj_w2_uncal = Jet(sj_w2)        
                 sj_w2_uncal.jecFactor = lambda x:1. 
                 sj_w2_uncal._rawFactorMultiplier =1.
 
-                c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, recalcMet = False)            
-                sj_w2_cal = PhysicsObject(sj_w2).__copy__() 
-                sj_w2_cal.scaleEnergy(c)
+                #c = self.jetReCalibratorAK4.getCorrection(sj_w2_uncal, rho, recalcMet = False)            
+                #sj_w2_cal = PhysicsObject(sj_w2).__copy__() 
+                #sj_w2_cal.scaleEnergy(c)
+
+                sj_w2_cal = Jet(sj_w2_uncal).__copy__() 
+                self.jetReCalibratorAK4.correct(sj_w2_cal, rho, addCorr=True,addShifts=True, recalcMet = False)
 
                 # Calibrate the subjets: NonW
                 sj_nonw_uncal = Jet(sj_nonw)        
                 sj_nonw_uncal.jecFactor = lambda x:1. 
                 sj_nonw_uncal._rawFactorMultiplier =1.
 
-                c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho, recalcMet = False)            
-                sj_nonw_cal = PhysicsObject(sj_nonw).__copy__() 
-                sj_nonw_cal.scaleEnergy(c)
+                #c = self.jetReCalibratorAK4.getCorrection(sj_nonw_uncal, rho, recalcMet = False)            
+                #sj_nonw_cal = PhysicsObject(sj_nonw).__copy__() 
+                #sj_nonw_cal.scaleEnergy(c)
+
+                sj_nonw_cal = Jet(sj_nonw_uncal).__copy__() 
+                self.jetReCalibratorAK4.correct(sj_nonw_cal, rho, addCorr=True,addShifts=True, recalcMet = False)
 
                 # Do all subjets pass the JetID requirements
                 event.httCandidates[i].subjetIDPassed = all([passesJetId(x) for x in [sj_w1_cal, sj_w2_cal, sj_nonw_cal]])
@@ -1065,11 +1070,18 @@ class AdditionalBoost( Analyzer ):
                 
                 tlv_top_cal =  tlv_sj_w1_cal + tlv_sj_w2_cal + tlv_sj_nonw_cal
 
+                # TODO: Read everything from the attached SJ
+                # Don't store uncalibrated stuff!
+
                 # Store calibrated top candidate variables
                 event.httCandidates[i].ptcal    = tlv_top_cal.Pt()
                 event.httCandidates[i].etacal   = tlv_top_cal.Eta()
                 event.httCandidates[i].phical   = tlv_top_cal.Phi()
                 event.httCandidates[i].masscal  = tlv_top_cal.M()
+
+                event.httCandidates[i].sjW1 = sj_w1_cal
+                event.httCandidates[i].sjW2 = sj_w2_cal
+                event.httCandidates[i].sjNonW = sj_nonw_cal
                                             
                 # Store SJ W1 Variables
                 event.httCandidates[i].sjW1ptcal   = sj_w1_cal.pt()
@@ -1078,6 +1090,8 @@ class AdditionalBoost( Analyzer ):
                 event.httCandidates[i].sjW1eta     = sj_w1.eta()
                 event.httCandidates[i].sjW1phi     = sj_w1.phi()
                 event.httCandidates[i].sjW1mass    = sj_w1.mass()
+                
+
 
                 # Get the correct b-tag
                 for ib in xrange(0, len(sjbtags)) :
