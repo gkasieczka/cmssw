@@ -400,6 +400,22 @@ subjetType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], v
     NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
 ],)
 
+
+##------------------------------------------  
+## Subjet
+##------------------------------------------  
+
+# Four Vector + b-Tag + JetID + corr
+
+subjetcorrType = NTupleObjectType("subjet",  baseObjectTypes = [ fourVectorType ], variables = [
+    NTupleVariable("btag",    lambda x : x.btag, help="CVS IVF V2 btag-score"),
+    NTupleVariable("jetID",    lambda x : x.jetID, help="Jet ID (loose) + pT/eta cuts"),
+    NTupleVariable("fromFJ",  lambda x : x.fromFJ, help="assigns subjet to fatjet. index of fatjet. Use the matching fj collection - eg: ca15prunedsubjets and ca15pruned"),
+    NTupleVariable("corr",  lambda x : x.corr),
+],)
+
+
+
 ##------------------------------------------  
 ## PAT Subjet
 ##------------------------------------------  

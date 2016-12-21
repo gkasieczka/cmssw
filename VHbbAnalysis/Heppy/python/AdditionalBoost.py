@@ -969,27 +969,32 @@ class AdditionalBoost( Analyzer ):
                         break
 
             # Calibrate subjets
+            
+            li_sj = []
+            
             for j in getattr(event, fj_name+"subjets"):
 
                 # Calibrate the subjet
-                sj_uncal = Jet(j)        
+                sj = Jet(j)        
+                sj.jecFactor = lambda x:1.
+                sj._rawFactorMultiplier =1.
 
-                sj_uncal.jecFactor = lambda x:1.
-                sj_uncal._rawFactorMultiplier =1.
-
-                # isHttSubjet is set to true
-                # it can be used for all jets that are uncalibrated and have no RAW factor
-                cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, recalcMet = False)            
+                sj.fromFJ = j.fromFJ
+                sj.jetID = passesJetId(j)
+                sj.btag = j.btag
                 
-                j.scaleEnergy(cal)
- 
 
-            # Add jetID information 
-            for j in getattr(event, fj_name+"subjets"):
-                j.jetID = passesJetId(j)
-            
-            # Sort subjets by pT
-            setattr(event, fj_name + "subjets", sorted(getattr(event, fj_name + "subjets"), key = lambda x:-x.pt()))
+                #if fj_name == "ca15subjetfiltered":
+                self.jetReCalibratorAK4.correct(sj, rho, addCorr=True,addShifts=True, recalcMet = False) 
+                #else:
+                #    cal = self.jetReCalibratorAK4.getCorrection(sj_uncal, rho, recalcMet = False)            
+                #    j.scaleEnergy(cal)
+
+                li_sj.append(sj)
+
+
+            # Sort subjets by pT and add to event
+            setattr(event, fj_name + "subjets", sorted(li_sj, key = lambda x:-x.pt()))
 
 
         ######## 

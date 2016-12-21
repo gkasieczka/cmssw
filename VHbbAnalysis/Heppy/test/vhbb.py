@@ -350,7 +350,7 @@ factorizedJetCorrections = [
 ]
 JetAna.factorizedJetCorrections = factorizedJetCorrections
 
-for jet_type in [jetTypeVHbb, patSubjetType]:
+for jet_type in [jetTypeVHbb, patSubjetType, subjetcorrType]:
         for jet_corr in factorizedJetCorrections:
             for sdir in ["Up", "Down"]:
                 name = jet_corr + sdir
