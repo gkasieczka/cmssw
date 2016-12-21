@@ -144,8 +144,6 @@ class JetReCalibrator:
         raw = jet.rawFactor()            
         corr = self.getCorrection(jet,rho,delta,recalcMet=recalcMet)
     
-        print "Correction factor: ", corr
-
         if addCorr: 
             jet.corr = corr
             for sepcorr in self.separateJetCorrectors.keys():
@@ -155,8 +153,6 @@ class JetReCalibrator:
                 for cdelta, sdir in [(1.0, "Up"), (-1.0, "Down")]:
                     cshift = self.getCorrection(jet, rho, uncertainty = unc, delta = delta + cdelta, recalcMet=recalcMet)
                     setattr(jet, "corr{0}{1}".format(unc, sdir), cshift)
-                    print "\t",unc,sdir,cshift
-
 
             #get also the total correction as corrJEC for backwards compatibility
             for cdelta, sdir in [(1.0, "JECUp"), (-1.0, "JECDown")]:
